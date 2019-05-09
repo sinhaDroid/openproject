@@ -224,7 +224,7 @@ hr:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: Trenutno nije dostupan niti jedan radni paket pridružen
@@ -1072,7 +1072,9 @@ hr:
   error_can_not_remove_role: Ova rola se koristi i ne može biti izbrisana.
   error_can_not_reopen_work_package_on_closed_version: Dodijeljeni radni paket zaključenoj
     verziji ne može biti ponovno otvoren
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Molim Vas odaberite korisnika i rolu.
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Opcija ne postoji.
@@ -1097,6 +1099,10 @@ hr:
   error_work_package_not_found_in_project: Radni paket nije pronađen ili ne pripada
     ovom projektu
   error_must_be_project_member: mora biti član projekta
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Početna vrijednost statusa radnog paketa nije
     definirana. Molimo vas provjerite konfiguraciju (Idite na "Administracija->Status
     radnih paketa").
@@ -1183,6 +1189,7 @@ hr:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Nadogradnja na izdanje Enterprise
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: Korisnički priručnici
       faq: Često postavljana pitanja
       glossary: Kazalo pojmova
@@ -1370,6 +1377,7 @@ hr:
   label_equals: je
   label_everywhere: everywhere
   label_example: Primjer
+  label_import: Import
   label_export_to: 'Također dostupan kao:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} sat"
@@ -1407,7 +1415,7 @@ hr:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: Početna
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: u
   label_in_less_than: u manje od
   label_in_more_than: u više od
@@ -1657,6 +1665,7 @@ hr:
   label_updated_time: Ažurirano prije %{value}
   label_updated_time_at: "%{author}%{age}"
   label_updated_time_by: Ažurirao korisnik %{author} prije %{age}
+  label_upgrade_guides: Upgrade guides
   label_used_by: Koristio
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2788,6 +2797,13 @@ hr:
 '
   menu_item: Stavka izbornika
   menu_item_setting: Vidljivost
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Stavka izbornika za wiki stranicu "%{title}"
   wiki_menu_item_setting: Vidljivost
   wiki_menu_item_new_main_item_explanation: 'Izbrisati će te samo glavnu stavku wiki

@@ -23,12 +23,14 @@ sk:
       upsale:
         boards: Need to freely structure your work in a board view?
         check_out_link: Pozrite si verziu Enterprise.
+      lists:
+        delete: Delete list
     card:
-      add_new: Add new card
+      add_new: Pridať novú kartu
       highlighting:
         inline: 'Highlight inline:'
         entire_card_by: Entire card by
-      remove_from_list: Remove card from list
+      remove_from_list: Odstrániť kartu zo zoznamu
     clipboard:
       browser_error: Váš prehliadač nepodporuje kopírovanie do schránky. Manuálne
         skopírujte vybratý text.
@@ -182,6 +184,8 @@ sk:
           title: Pracovné balíčky vytvorené mnou
         work_packages_watched:
           title: Pracovné balíčky sledované mnou
+        work_packages_table:
+          title: Pracovné balíčky
         work_packages_calendar:
           title: Kalendár
     label_activate: Aktivovať
@@ -255,6 +259,7 @@ sk:
     label_more_than_ago: pred viac než dňom
     label_my_page: Moja stránka
     label_next: Ďalšie
+    label_no_color: Žiadna farba
     label_no_data: Žiadne dáta na zobrazenie
     label_no_due_date: bez dátumu ukončenia
     label_no_start_date: žiadny dátum začatia
@@ -330,7 +335,7 @@ sk:
     label_upload_notification: Nahrávanie súborov...
     label_work_package_upload_notification: 'Nahrávanie súborov pre Pracovný balík
       #%{id}: %{subject}'
-    label_wp_id_added_by: "#%{id} added by %{author}"
+    label_wp_id_added_by: "#%{id} pridané %{author}"
     label_files_to_upload: 'Tieto súbory budú odovzdané:'
     label_rejected_files: 'Tieto súbory nie je možné odovzdať:'
     label_rejected_files_reason: Tieto súbory nie je možné odovzdať, pretože ich veľkosť
@@ -375,8 +380,8 @@ sk:
           lists: You can create multiple lists (columns) within one Board view, e.g.
             to create a KANBAN board.
           add: Click the + will <b>add a new card</b> to the list within a Board.
-          drag: Drag & Drop your cards within a list to re-order, or the another list.
-            A double click will open the details view.
+          drag: Drag & Drop your cards within a list to re-order, or to drag to another
+            list. A double click will open the details view.
         wp:
           toggler: Tu sú <b>Pracovné balíčky</b>, ktoré vám poskytnú podrobnejší pohľad
             na prácu vo vašom projekte.

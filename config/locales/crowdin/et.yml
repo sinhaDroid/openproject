@@ -227,7 +227,7 @@ et:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: There are currently no work packages assigned to this
@@ -1050,7 +1050,9 @@ et:
   error_can_not_remove_role: See roll on kasutuses ja seda ei saa kustutada.
   error_can_not_reopen_work_package_on_closed_version: Suletud versiooni juurde kuulunud
     teemat ei saa taasavada
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Palun vali kasutaja ja roll.
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Option does not exist.
@@ -1074,6 +1076,10 @@ et:
   error_work_package_not_found_in_project: Teemat ei leitud või see ei kuulu siia
     projekti
   error_must_be_project_member: peab olema projekti liige
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Teema algolek on määramata. Palun vaata seadistused
     üle ("Seadistused -> Teemade olekud").
   error_no_type_in_project: Ühtegi tüüpi ei ole seotud selle projektiga. Palun kontrolli
@@ -1161,6 +1167,7 @@ et:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: User guides
       faq: KKK
       glossary: Sõnastik
@@ -1349,6 +1356,7 @@ et:
   label_equals: võrdub
   label_everywhere: everywhere
   label_example: Näide
+  label_import: Import
   label_export_to: 'Saadaval ka:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} tund"
@@ -1386,7 +1394,7 @@ et:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: Avaleht
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: sisaldub hulgas
   label_in_less_than: on väiksem kui
   label_in_more_than: on suurem kui
@@ -1635,6 +1643,7 @@ et:
   label_updated_time: Uuendatud %{value} tagasi
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Uuendatud %{author} poolt %{age} tagasi
+  label_upgrade_guides: Upgrade guides
   label_used_by: Kasutab
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2734,6 +2743,13 @@ et:
 '
   menu_item: Menüüvalik
   menu_item_setting: Nähtavus
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menüüvalik vikilehele "%{title}"
   wiki_menu_item_setting: Nähtavus
   wiki_menu_item_new_main_item_explanation: 'Sa oled kustutamas ainsat viki põhilehele

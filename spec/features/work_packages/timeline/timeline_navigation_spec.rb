@@ -126,8 +126,11 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
     # Should have an active element rendered
     wp_timeline.expect_timeline_element(work_package)
 
-    # Expect zoom at days
-    wp_timeline.expect_zoom_at :days
+    # Expect zoom out from auto to days
+    wp_timeline.expect_zoom_at :auto
+
+    # Zooming in = days
+    expect(wp_timeline.zoom_in_button).to be_disabled
     wp_timeline.zoom_out
     wp_timeline.expect_zoom_at :weeks
 
@@ -138,6 +141,7 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
     # Check the query
     query = Query.last
     expect(query.timeline_visible).to be_truthy
+    expect(query.timeline_zoom_level).to eq 'weeks'
 
     # Revisit page
     wp_timeline.visit_query query
@@ -147,6 +151,17 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
 
     # Expect zoom at weeks
     wp_timeline.expect_zoom_at :weeks
+
+    # Go back to autozoom
+    wp_timeline.autozoom
+    wp_timeline.expect_zoom_at :auto
+
+    # Save
+    wp_timeline.save
+    wp_timeline.expect_and_dismiss_notification message: 'Successful update'
+
+    query.reload
+    expect(query.timeline_zoom_level).to eq 'auto'
   end
 
   describe 'with a hierarchy being shown' do

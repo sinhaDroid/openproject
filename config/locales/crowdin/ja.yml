@@ -198,9 +198,9 @@ ja:
       edit_query: テーブルを編集
       query_group_placeholder: テーブルに名前を付けます
       reset: デフォルトに戻す
-      type_color_text: 'このタイプの色を割り当てたり変更する場合にクリックします。 選択された色は、ガントチャートの作業項目を区別します。
-
-'
+      type_color_text: |
+        クリックして、このタイプの色を割り当てたり、変更します。選択した色は、ガントチャートのワークパッケージを区別します。
+        したがって、はっきりした色を使用することをお勧めします。
   versions:
     overview:
       no_results_title_text: このバージョンに割り当てられている作業項目はありません。
@@ -971,7 +971,9 @@ ja:
   error_can_not_invite_user: ユーザーへの招待状の送信に失敗しました。
   error_can_not_remove_role: このロールは使用されています。削除できません。
   error_can_not_reopen_work_package_on_closed_version: 終了したバージョンにひも付けされた作業項目は再度開けません。
+  error_can_not_find_all_resources: この要求に、すべての関連リソースを見つけられませんでした。
   error_check_user_and_role: ユーザとロールを選択してください。
+  error_code: エラー %{code}
   error_cookie_missing: OpenProject のcookieが見つかりません。cookieが有効であることを確認してください。そうしないとこのアプリケーションは正しく動作しません。
   error_custom_option_not_found: オプションが存在しません。
   error_dependent_work_package: '依存するワークパッケージのエラー#%{related_id} %{related_subject}:
@@ -990,6 +992,8 @@ ja:
   error_work_package_done_ratios_not_updated: 作業項目の進捗率が更新できません。
   error_work_package_not_found_in_project: 作業項目が見つからないか、このプロジェクトに属してないかです。
   error_must_be_project_member: プロジェクトのメンバーである必要があります。
+  error_migrations_are_pending: OpenProject のインストールはデータベースの移行が保留中です。前回のアップグレード時に移行の実行を行っていない可能性があります。アップグレードガイドを確認して、適切にインストールをアップグレードしてください。
+  error_migrations_visit_upgrade_guides: アップグレードガイドのドキュメントをご覧ください
   error_no_default_work_package_status: 作業項目の既定のステータスが定義されていません。 設定をご確認してください（管理→作業項目ステータス）。
   error_no_type_in_project: このプロジェクトには関連付けている作業項目の型がありません。プロジェクトの設定をご確認してください。
   error_omniauth_registration_timed_out: 外部認証プロバイダーを経由して登録がタイムアウトしました。もう一度やり直してください。
@@ -1066,6 +1070,7 @@ ja:
         you_contribute: 開発者も請求に支払う必要があります。エンタープライズ版で、実質的に、このオープンソース コミュニティの努力に貢献できます。
     links:
       upgrade_enterprise_edition: エンタープライズ版にアップグレード
+      postgres_migration: PostgreSQL にインストールを移行しています
       user_guides: ユーザーガイド
       faq: FAQ
       glossary: 用語集
@@ -1248,6 +1253,7 @@ ja:
   label_equals: 等しい
   label_everywhere: どこにでも
   label_example: 例
+  label_import: インポート
   label_export_to: こちらもアクセス可能：
   label_expanded_click_to_collapse: 拡大しました。クリックすると閉じます
   label_f_hour: "%{value}時間"
@@ -1284,7 +1290,7 @@ ja:
   label_hierarchy_leaf: 階層枚
   label_home: ホーム
   label_subject_or_id: 件名またはID
-  label_impressum: 免責事項
+  label_impressum: 法的情報
   label_in: 今日から○日後
   label_in_less_than: 今日から○日後以前
   label_in_more_than: 今日から○日後以降
@@ -1534,6 +1540,7 @@ ja:
   label_updated_time: "%{value}前に更新"
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: "%{author}が%{age}前に更新"
+  label_upgrade_guides: アップグレードガイド
   label_used_by: 使用中
   label_used_by_types: タイプで使用
   label_used_in_projects: プロジェクトで使用
@@ -2505,6 +2512,11 @@ ja:
 '
   menu_item: メニュー項目
   menu_item_setting: 可視性
+  mysql_deprecation:
+    notice: 'OpenProject の将来のバージョンは MariaDB と MySQL データベースのサポートがなくなる可能性があります。MySQL
+      のインストールが実行中の場合、PostgreSQL のインストールと移行をお勧めします。 移行ガイドに従うと、このプロセスを簡単に行うことができます:
+
+'
   wiki_menu_item_for: Wikiページ"%{title}"のメニュー項目
   wiki_menu_item_setting: 可視性
   wiki_menu_item_new_main_item_explanation: '唯一の主なＷｉｋｉメニュー項目が削除されます。新しい主要項目が生成するためにＷｉｋｉページを選択する必要があります。Ｗｉｋｉを削除するには、プロジェクト管理者によってＷｉｋｉモジュールを無効にすることができます。

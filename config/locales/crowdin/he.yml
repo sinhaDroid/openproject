@@ -227,7 +227,7 @@ he:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: אין כרגע חבילות עבודה שהוקצו עבור גירסה זו.
@@ -1077,7 +1077,9 @@ he:
   error_can_not_remove_role: תפקיד זה נמצא בשימוש ואינו יכול להמחק.
   error_can_not_reopen_work_package_on_closed_version: חבילת עבודה השייכת לגרסה שנסגרה
     אינה יכולה להפתח מחדש
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: נא לבחור משתמש ותפקיד.
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Option does not exist.
@@ -1101,6 +1103,10 @@ he:
   error_work_package_not_found_in_project: חבילת העבודה לא נמצאה או לא שייכת לפרוייקט
     זה
   error_must_be_project_member: חייב להיות חבר בפרוייקט
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: אין הגדרת סטטוס ברירת מחדל לחבילת עבודה. אנא
     בדוק את ההגדרות שלך (לך אל ״ניהול -> סטטוסי חבילת עבודה״).
   error_no_type_in_project: אין סוג המשויך לפרויקט זה. אנא בדוק את הגדרות הפרוייקט.
@@ -1183,6 +1189,7 @@ he:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: User guides
       faq: FAQ
       glossary: Glossary
@@ -1370,6 +1377,7 @@ he:
   label_equals: הינו
   label_everywhere: everywhere
   label_example: דוגמה
+  label_import: Import
   label_export_to: 'Also available in:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} hour"
@@ -1407,7 +1415,7 @@ he:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: דף הבית
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: ב
   label_in_less_than: in less than
   label_in_more_than: in more than
@@ -1656,6 +1664,7 @@ he:
   label_updated_time: Updated %{value} ago
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Updated by %{author} %{age} ago
+  label_upgrade_guides: Upgrade guides
   label_used_by: Used by
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2780,6 +2789,13 @@ he:
 '
   menu_item: Menu item
   menu_item_setting: Visibility
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menu item for wikipage "%{title}"
   wiki_menu_item_setting: Visibility
   wiki_menu_item_new_main_item_explanation: 'You are deleting the only main wiki menu

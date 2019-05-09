@@ -155,6 +155,10 @@ describe 'Board management spec', type: :feature, js: true do
       expect(queries.first.name).to eq 'First'
       expect(queries.first.ordered_work_packages).to be_empty
 
+      # Remove first list
+      board_page.remove_list 'First'
+      board_page.expect_empty
+
       # Remove entire board
       board_page.delete_board
       board_index.expect_board 'Board foo', present: false
@@ -172,6 +176,11 @@ describe 'Board management spec', type: :feature, js: true do
       board_page = board_index.open_board board_view
       board_page.expect_query 'List 1', editable: false
       board_page.expect_editable false
+
+      list = page.find(board_page.list_selector('List 1'))
+      list.hover
+      expect(page).to have_no_selector('.board-list--more-menu')
+
       board_page.back_to_index
 
       board_index.expect_board board_view.name

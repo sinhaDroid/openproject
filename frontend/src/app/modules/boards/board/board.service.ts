@@ -54,7 +54,7 @@ export class BoardService {
       .allInScope()
       .toPromise()
       .then((boards) => {
-        boards.forEach(b => this.boardCache.update(b));
+        boards.forEach(b => this.buildOrderAndUpdate(b));
         return boards;
       });
   }
@@ -62,8 +62,8 @@ export class BoardService {
   /**
    * Check whether the current user can manage board-type grids.
    */
-  public get canManage():boolean {
-    return !!this.Gon.get('permission_flags', 'manage_board_views');
+  public canManage(board:Board):boolean {
+    return !!board.grid.$links.delete;
   }
 
 
@@ -123,11 +123,19 @@ export class BoardService {
    * @param board
    */
   private reorderWidgets(board:Board) {
-    board.grid.columnCount = board.grid.widgets.length;
+    board.grid.columnCount = Math.max(board.grid.widgets.length, 1);
     board.grid.widgets.map((el:GridWidgetResource, index:number) => {
       el.startColumn = index + 1;
       el.endColumn = index + 2;
       return el;
     });
+  }
+
+  /**
+   * Put the board widgets in correct order and update cache
+   */
+  private buildOrderAndUpdate(board:Board) {
+    board.sortWidgets();
+    this.boardCache.update(board);
   }
 }

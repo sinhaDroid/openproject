@@ -50,6 +50,8 @@ import {AddListModalComponent} from "core-app/modules/boards/board/add-list-moda
 import {BoardHighlightingTabComponent} from "core-app/modules/boards/board/configuration-modal/tabs/highlighting-tab.component";
 import {AddCardDropdownMenuDirective} from "core-app/modules/boards/board/add-card-dropdown/add-card-dropdown-menu.directive";
 import {BoardFilterComponent} from "core-app/modules/boards/board/board-filter/board-filter.component";
+import {DragScrollModule} from "cdk-drag-scroll";
+import {BoardListDropdownMenuDirective} from "core-app/modules/boards/board/board-list/board-list-dropdown.directive";
 
 export const BOARDS_ROUTES:Ng2StateDeclaration[] = [
   {
@@ -60,7 +62,7 @@ export const BOARDS_ROUTES:Ng2StateDeclaration[] = [
     url: '/boards/?query_props',
     params: {
       // Use custom encoder/decoder that ensures validity of URL string
-      query_props: {type: 'opQueryString'}
+      query_props: { type: 'opQueryString', dynamic: true }
     },
     redirectTo: 'boards.list',
     component: BoardsRootComponent
@@ -69,7 +71,8 @@ export const BOARDS_ROUTES:Ng2StateDeclaration[] = [
     name: 'boards.list',
     component: BoardsIndexPageComponent,
     data: {
-      parent: 'boards'
+      parent: 'boards',
+      bodyClasses: 'router--boards-list-view'
     }
   },
   {
@@ -77,11 +80,13 @@ export const BOARDS_ROUTES:Ng2StateDeclaration[] = [
     url: '{board_id}',
     params: {
       board_id: {type: 'int'},
-      isNew: {type: 'bool'}
+      isNew: {type: 'bool', inherit: false, dynamic: true}
     },
+    reloadOnSearch: false,
     component: BoardComponent,
     data: {
-      parent: 'boards'
+      parent: 'boards',
+      bodyClasses: 'router--boards-full-view'
     }
   }
 ];
@@ -110,6 +115,7 @@ export function registerBoardsModule(injector:Injector) {
   imports: [
     OpenprojectCommonModule,
     OpenprojectWorkPackagesModule,
+    DragScrollModule,
 
     // Routes for /boards
     UIRouterModule.forChild({
@@ -145,6 +151,7 @@ export function registerBoardsModule(injector:Injector) {
     NewBoardModalComponent,
     AddListModalComponent,
     AddCardDropdownMenuDirective,
+    BoardListDropdownMenuDirective,
     BoardFilterComponent,
   ],
   entryComponents: [

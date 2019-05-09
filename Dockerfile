@@ -18,6 +18,8 @@ ENV OPENPROJECT_INSTALLATION__TYPE docker
 ENV NEW_RELIC_AGENT_ENABLED false
 ENV ATTACHMENTS_STORAGE_PATH $APP_DATA_PATH/files
 
+ENV PGLOADER_DEPENDENCIES "libsqlite3-dev make curl gawk freetds-dev libzip-dev"
+
 # Set a default key base, ensure to provide a secure value in production environments!
 ENV SECRET_KEY_BASE OVERWRITE_ME
 
@@ -27,6 +29,7 @@ RUN curl https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x6
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y  \
     postgresql-client \
+    mysql-client \
     poppler-utils \
     unrtf \
     tesseract-ocr \
@@ -34,9 +37,17 @@ RUN apt-get update -qq && \
     memcached \
     postfix \
     postgresql \
+    $PGLOADER_DEPENDENCIES \
     apache2 \
     supervisor && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# pgloader
+ENV CCL_DEFAULT_DIRECTORY /opt/ccl
+COPY docker/mysql-to-postgres/bin/build /tmp/build-pgloader
+RUN /tmp/build-pgloader && rm /tmp/build-pgloader
+# Add MySQL-to-Postgres migration script to path (used in entrypoint.sh)
+COPY docker/mysql-to-postgres/bin/migrate-mysql-to-postgres /usr/local/bin/
 
 # Set up pg defaults
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.6/main/pg_hba.conf
@@ -58,7 +69,7 @@ COPY modules ./modules
 # OpenProject::Version is required by module versions in gemspecs
 RUN mkdir -p lib/open_project
 COPY lib/open_project/version.rb ./lib/open_project/
-RUN bundle install --deployment --with="docker opf_plugins" --without="test development mysql2" --jobs=8 --retry=3
+RUN bundle install --deployment --with="docker opf_plugins" --without="test development" --jobs=8 --retry=3
 
 # Finally, copy over the whole thing
 COPY . $APP_PATH

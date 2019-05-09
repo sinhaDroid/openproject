@@ -22,6 +22,8 @@ nl:
       upsale:
         boards: Wilt u vrij de structuur van uw werk in een weergave op een bord?
         check_out_link: Bekijk de Enterprise Edition.
+      lists:
+        delete: Delete list
     card:
       add_new: Nieuwe kaart toevoegen
       highlighting:
@@ -183,6 +185,8 @@ nl:
           title: Werkpakketten gemaakt door mij werk werk
         work_packages_watched:
           title: Werkpakketten bekeken door mij
+        work_packages_table:
+          title: Werkpakketten
         work_packages_calendar:
           title: Agenda
     label_activate: Activeren
@@ -258,6 +262,7 @@ nl:
     label_more_than_ago: meer dan dagen geleden
     label_my_page: Mijn pagina
     label_next: Volgende
+    label_no_color: Geen kleur
     label_no_data: Geen gegevens om weer te geven
     label_no_due_date: geen einddatum
     label_no_start_date: geen startdatum
@@ -381,8 +386,8 @@ nl:
           lists: You can create multiple lists (columns) within one Board view, e.g.
             to create a KANBAN board.
           add: Click the + will <b>add a new card</b> to the list within a Board.
-          drag: Drag & Drop your cards within a list to re-order, or the another list.
-            A double click will open the details view.
+          drag: Drag & Drop your cards within a list to re-order, or to drag to another
+            list. A double click will open the details view.
         wp:
           toggler: Laten we nu eens een kijkje op de <b>werk pakket</b> -sectie, die
             je een meer gedetailleerde weergave van uw werk geeft.

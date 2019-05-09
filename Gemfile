@@ -138,8 +138,7 @@ gem 'lograge', '~> 0.10.0'
 # don't require by default, instead load on-demand when actually configured
 gem 'airbrake', '~> 8.0.1', require: false
 
-gem 'transactional_lock', git: 'https://github.com/finnlabs/transactional_lock.git',
-                          branch: 'master'
+gem 'with_advisory_lock'
 
 gem 'prawn', '~> 2.2'
 gem 'prawn-table', '~> 0.2.2'
@@ -165,7 +164,6 @@ gem 'autoprefixer-rails', '~> 9.4.5'
 # use until proper release no longer requiring sass exists
 gem 'bourbon', git: 'https://github.com/sikachu/bourbon', ref: 'a12ca168e74d3468c80500b21b525a4e12a19ef9'
 gem 'i18n-js', '~> 3.2.0'
-gem 'sass-rails'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'sprockets', '~> 3.7.0'
 
@@ -173,7 +171,7 @@ gem 'sprockets', '~> 3.7.0'
 # also, better than thin since we can control worker concurrency.
 gem 'unicorn'
 
-gem 'nokogiri', '~> 1.10.0'
+gem 'nokogiri', '~> 1.10.3'
 
 gem 'carrierwave', '~> 1.3.1'
 gem 'fog-aws'
@@ -249,7 +247,7 @@ end
 group :development do
   gem 'faker'
   gem 'letter_opener'
-  gem 'livingstyleguide', '~> 2.0.1'
+  gem 'livingstyleguide', '~> 2.1.0'
 
   gem 'spring'
   gem 'spring-commands-rspec'
@@ -303,7 +301,6 @@ group :docker, optional: true do
   gem 'passenger', '~> 6.0.1'
 
   # Used to easily precompile assets
-  gem 'health_check', require: !!ENV['HEROKU']
   gem 'newrelic_rpm', require: !!ENV['HEROKU']
   gem 'rails_12factor', require: !!ENV['HEROKU']
 end

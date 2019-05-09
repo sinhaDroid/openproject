@@ -75,7 +75,7 @@ pt-BR:
 '
   forums:
     show:
-      no_results_title_text: There are currently no posts for the forum.
+      no_results_title_text: Atualmente não há postagens para o fórum.
   colors:
     index:
       no_results_title_text: Atualmente, não existem cores.
@@ -157,8 +157,8 @@ pt-BR:
       activities:
         no_results_title_text: Atualmente, não há atividades disponíveis.
       forums:
-        no_results_title_text: There are currently no forums for the project.
-        no_results_content_text: Create a new forum
+        no_results_title_text: Atualmente não há fóruns para o projeto.
+        no_results_content_text: Criar um novo fórum
       categories:
         no_results_title_text: Atualmente, não há categorias de pacote de trabalho.
         no_results_content_text: Criar uma nova categoria de pacote de trabalho
@@ -227,7 +227,8 @@ pt-BR:
       query_group_placeholder: Nomear tabela
       reset: Redefinir para os padrões
       type_color_text: 'Clique para atribuir ou alterar a cor deste tipo. A cor selecionada
-        diferencia pacotes de trabalho em gráficos de Gantt.
+        distingue os pacotes de trabalho em gráficos Gantt. Por isso, recomenda-se
+        o uso de uma cor forte.
 
 '
   versions:
@@ -528,7 +529,7 @@ pt-BR:
         too_long: é muito longo (o máximo é %{count} caracteres).
         too_short: é muito curto (mínimo é %{count} caracteres).
         unchangeable: não pode ser alterado.
-        unremovable: cannot be removed.
+        unremovable: não pode ser removido.
         wrong_length: é o tamanho errado (deve ser %{count} caracteres).
       models:
         custom_field:
@@ -1059,7 +1060,10 @@ pt-BR:
   error_can_not_remove_role: Este papel está em uso e não pode ser excluído.
   error_can_not_reopen_work_package_on_closed_version: Um pacote de trabalho atribuído
     a uma versão fechada não pode ser reaberto
+  error_can_not_find_all_resources: Não foi possível encontrar todos os recursos relacionados
+    a esta solicitação.
   error_check_user_and_role: Por favor, escolha um usuário e um papel.
+  error_code: Erro %{code}
   error_cookie_missing: Está faltando o cookie do OpenProject. Por favor, certifique-se
     de que os cookies estão habilitados, sem os quais esta função não funcionará adequadamente.
   error_custom_option_not_found: A opção não existe.
@@ -1084,6 +1088,12 @@ pt-BR:
   error_work_package_not_found_in_project: O pacote de trabalho não foi encontrado
     ou não pertence a este projeto
   error_must_be_project_member: deve ser membro do projeto
+  error_migrations_are_pending: Sua instalação do OpenProject possui migrações de
+    banco de dados pendentes. Você provavelmente esqueceu de executar as migrações
+    em sua última atualização. Por favor, verifique o guia de atualização para atualizar
+    adequadamente sua instalação.
+  error_migrations_visit_upgrade_guides: Por favor, visite nossa documentação do guia
+    de atualização
   error_no_default_work_package_status: Nenhuma situação padrão de pacote de trabalho
     foi definida. Por favor, verifique sua configuração (vá em "Administração-> Situação
     de pacotes de trabalho").
@@ -1170,6 +1180,7 @@ pt-BR:
           Enterprise Edition você contribui para o esforço da comunidade Open-Source.
     links:
       upgrade_enterprise_edition: Atualizar para a versão Enterprise Edition
+      postgres_migration: Migrando sua instalação para PostgreSQL
       user_guides: Guias do usuário
       faq: Perguntas Freqüentes
       glossary: Glossário
@@ -1242,7 +1253,7 @@ pt-BR:
   label_available_project_work_package_categories: Categorias de pacote de trabalho
     disponíveis
   label_available_project_work_package_types: Tipos de pacote de trabalho disponíveis
-  label_available_project_forums: Available forums
+  label_available_project_forums: Fóruns disponíveis
   label_available_project_versions: Versões disponíveis
   label_available_project_repositories: Repositórios disponíveis
   label_api_documentation: Documentação da API
@@ -1258,7 +1269,7 @@ pt-BR:
   label_branch: Ramo
   label_browse: Navegador
   label_bulk_edit_selected_work_packages: Editar em lote os pacotes de trabalho selecionados
-  label_bundled: "(Bundled)"
+  label_bundled: "(Empacotado)"
   label_calendar: Calendário
   label_calendar_show: Mostrar Calendário
   label_category: Categoria
@@ -1358,6 +1369,7 @@ pt-BR:
   label_equals: é
   label_everywhere: em todos os lugares
   label_example: Exemplo
+  label_import: Importar
   label_export_to: 'Também disponível em:'
   label_expanded_click_to_collapse: Expandido. Clique para recolher
   label_f_hour: "%{value} hora"
@@ -1395,7 +1407,7 @@ pt-BR:
   label_hierarchy_leaf: Folha de hierarquia
   label_home: Início
   label_subject_or_id: Assunto ou ID
-  label_impressum: Impressum
+  label_impressum: Aviso legal
   label_in: em
   label_in_less_than: em menos de
   label_in_more_than: em mais de
@@ -1521,7 +1533,7 @@ pt-BR:
   label_planning: Planejamento
   label_please_login: Por favor, efetue o login
   label_plugins: Plugins
-  label_modules_and_plugins: Modules and Plugins
+  label_modules_and_plugins: Módulos e Plugins
   label_precedes: precede
   label_preferences: Preferências
   label_preview: Pré-visualizar
@@ -1529,7 +1541,7 @@ pt-BR:
   label_previous_week: Semana anterior
   label_principal_invite_via_email: " ou convidar novos usuários via e-mail"
   label_principal_search: Adicionar usuários existentes ou grupos
-  label_privacy_policy: Data privacy and security policy
+  label_privacy_policy: Política de privacidade e segurança de dados
   label_product_version: Versão do produto
   label_professional_support: Suporte profissional
   label_profile: Perfil
@@ -1646,6 +1658,7 @@ pt-BR:
   label_updated_time: Atualizado há %{value} atrás
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Atualizado por %{author} %{age} atrás
+  label_upgrade_guides: Guias de atualização
   label_used_by: Usado por
   label_used_by_types: Utilizado por tipos
   label_used_in_projects: Utilizado em projetos
@@ -2782,6 +2795,13 @@ pt-BR:
 '
   menu_item: Item de menu
   menu_item_setting: Visibilidade
+  mysql_deprecation:
+    notice: 'As versões posteriores do OpenProject irão, provavelmente, abandonar
+      ou reduzir o suporte às bases de dados MySQL e MariaDB. Sua instalação continua
+      a ser executada no MySQL e sugerimos que você migre-a para o PostgreSQL. Este
+      processo é fácil quando nossos guias de migração são seguidos:
+
+'
   wiki_menu_item_for: Item de menu para página wiki "%{title}"
   wiki_menu_item_setting: Visibilidade
   wiki_menu_item_new_main_item_explanation: 'Você está excluindo somente o item de

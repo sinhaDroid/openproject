@@ -227,7 +227,7 @@ vi:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: There are currently no work packages assigned to this
@@ -1054,7 +1054,9 @@ vi:
   error_can_not_remove_role: Vai trò này đang được sử dụng và không thể bị xóa.
   error_can_not_reopen_work_package_on_closed_version: Không thể mở lại cho một work
     package đã được gán cho một phiên bản đã đóng
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Hãy chọn người dùng và một vai trò.
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Option does not exist.
@@ -1079,6 +1081,10 @@ vi:
   error_work_package_not_found_in_project: Work package không được tìm thấy hoặc không
     thuộc về dự án này
   error_must_be_project_member: phải là thành viên dự án
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Không có tình trạng mặc định được định nghĩa
     cho work package. Vui lòng kiểm tra cấu hình của bạn (đi đến "Quản lý-> các trạng
     thái của work package").
@@ -1165,6 +1171,7 @@ vi:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: User guides
       faq: FAQ
       glossary: Glossary
@@ -1352,6 +1359,7 @@ vi:
   label_equals: is
   label_everywhere: everywhere
   label_example: Ví dụ
+  label_import: Import
   label_export_to: 'Cũng có sẵn tại:'
   label_expanded_click_to_collapse: Mở rộng. Bấm vào để thu gọn
   label_f_hour: "%{value} giờ"
@@ -1389,7 +1397,7 @@ vi:
   label_hierarchy_leaf: Hệ thống phân cấp lá
   label_home: Home
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: trong
   label_in_less_than: ít hơn
   label_in_more_than: nhiều hơn
@@ -1639,6 +1647,7 @@ vi:
   label_updated_time: Cập nhật cách đây %{value}
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Cập nhật bởi %{author} cách đây %{age}
+  label_upgrade_guides: Upgrade guides
   label_used_by: Được dùng bởi
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2752,6 +2761,13 @@ vi:
 '
   menu_item: Menu item
   menu_item_setting: Visibility
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menu item for wikipage "%{title}"
   wiki_menu_item_setting: Visibility
   wiki_menu_item_new_main_item_explanation: 'You are deleting the only main wiki menu

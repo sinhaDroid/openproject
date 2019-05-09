@@ -227,8 +227,8 @@ nl:
       query_group_placeholder: Geef de tabel een naam
       reset: Standaardinstellingen herstellen
       type_color_text: |
-        Klik op toewijzen of wijzigen van de kleur van dit type. De geselecteerde kleur onderscheidt werk pakketten
-        in Gantt-diagrammen.
+        Click to assign or change the color of this type. The selected color distinguishes work packages
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: Er zijn momenteel geen werkpakketten toegewezen aan deze
@@ -1073,7 +1073,9 @@ nl:
   error_can_not_remove_role: Deze rol is in gebruik en kan niet worden verwijderd.
   error_can_not_reopen_work_package_on_closed_version: Een werkpakket toegewezen aan
     een gesloten versie kan niet worden heropend
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Kies een gebruiker en een rol.
+  error_code: Error %{code}
   error_cookie_missing: De cookie voor OpenProject ontbreekt. Zorg ervoor dat cookies
     zijn ingeschakeld aangezien deze toepassing anders niet goed zal functioneren.
   error_custom_option_not_found: Optie bestaat niet.
@@ -1097,6 +1099,10 @@ nl:
   error_work_package_not_found_in_project: Het werkpakket werd niet gevonden of maakt
     geen deel uit van dit project
   error_must_be_project_member: moet een project lid zijn
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Geen standaard werkpakket status is gedefinieerd.
     Controleer uw configuratie (Ga naar 'Administratie-> werkpakket statussen').
   error_no_type_in_project: Er is geen type gekoppeld aan dit project. Controleer
@@ -1183,6 +1189,7 @@ nl:
           Edition bedraagt je aanzijnlijk bij aan deze Open-Source gemeenschaps inspanning.
     links:
       upgrade_enterprise_edition: Upgrade naar Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: Gebruikershandleidingen
       faq: Veelgestelde vragen (FAQ)
       glossary: Woordenlijst
@@ -1371,6 +1378,7 @@ nl:
   label_equals: is
   label_everywhere: overal
   label_example: Voorbeeld
+  label_import: Import
   label_export_to: 'Ook verkrijgbaar in:'
   label_expanded_click_to_collapse: Uitgebreid. Klik op samenvouwen
   label_f_hour: "%{value} uur"
@@ -1408,7 +1416,7 @@ nl:
   label_hierarchy_leaf: Hiërarchie blad
   label_home: Home
   label_subject_or_id: Onderwerp of ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: in
   label_in_less_than: in minder dan
   label_in_more_than: in meer dan
@@ -1659,6 +1667,7 @@ nl:
   label_updated_time: Bijgewerkt %{value} geleden
   label_updated_time_at: "%%{author} %{age}"
   label_updated_time_by: Bijgewerkt door %{author} %{age} geleden
+  label_upgrade_guides: Upgrade guides
   label_used_by: Gebruikt door
   label_used_by_types: Wordt gebruikt door types
   label_used_in_projects: Wordt gebruikt in projecten
@@ -2804,6 +2813,13 @@ nl:
 '
   menu_item: Menu-item
   menu_item_setting: Zichtbaarheid
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menu-item voor wiki pagina "%{title}"
   wiki_menu_item_setting: Zichtbaarheid
   wiki_menu_item_new_main_item_explanation: 'U verwijdert het alleen het hoofd wiki

@@ -83,9 +83,13 @@ module Pages
     end
 
     def expect_work_package_order(*ids)
-      rows = page.all '.wp-table--row'
-      ids = ids.map { |el| el.is_a?(WorkPackage) ? el.id.to_s : el.to_s }
-      expect(rows.map { |el| el['data-work-package-id'] }).to match_array(ids)
+      retry_block do
+        rows = page.all '.wp-table--row'
+        expected = ids.map { |el| el.is_a?(WorkPackage) ? el.id.to_s : el.to_s }
+        found = rows.map { |el| el['data-work-package-id'] }
+
+        raise "Order is incorrect: #{found.inspect} != #{expected.inspect}" unless found == expected
+      end
     end
 
     def expect_no_work_package_listed
@@ -124,7 +128,7 @@ module Pages
     def create_wp_split_screen(type)
       click_wp_create_button
 
-      find('#types-context-menu .menu-item', text: type, wait: 10).click
+      find('#types-context-menu .menu-item', text: type.name.upcase, wait: 10).click
 
       SplitWorkPackageCreate.new(project: project)
     end
@@ -137,14 +141,14 @@ module Pages
       click_wp_create_button
 
       expect(page)
-        .to have_selector('#types-context-menu .menu-item', text: type.name)
+        .to have_selector('#types-context-menu .menu-item', text: type.name.upcase)
     end
 
     def expect_type_not_available_for_create(type)
       click_wp_create_button
 
       expect(page)
-        .to have_no_selector('#types-context-menu .menu-item', text: type.name)
+        .to have_no_selector('#types-context-menu .menu-item', text: type.name.upcase)
     end
 
     def open_split_view(work_package)
@@ -162,26 +166,6 @@ module Pages
     def click_on_row(work_package)
       loading_indicator_saveguard
       page.driver.browser.action.click(row(work_package).native).perform
-    end
-
-    def add_filter(label, operator, value)
-      open_filter_section
-
-      select(label, from: 'Add filter:')
-
-      filter_name = get_filter_name(label)
-
-      select(operator, from: "operators-#{filter_name}") if operator
-      select(value, from: "values-#{filter_name}") if value
-    end
-
-    def expect_filter(label, operator, value)
-      open_filter_section
-
-      filter_name = get_filter_name(label)
-
-      expect(page).to have_select("operators-#{filter_name}", selected: operator) if operator
-      expect(page).to have_select("values-#{filter_name}", selected: value) if value
     end
 
     def open_full_screen_by_doubleclick(work_package)
@@ -236,12 +220,6 @@ module Pages
 
     def save
       click_setting_item /Save$/
-    end
-
-    def open_filter_section
-      unless page.has_selector?('#work-packages-filter-toggle-button.-active')
-        click_button('work-packages-filter-toggle-button')
-      end
     end
 
     def table_container

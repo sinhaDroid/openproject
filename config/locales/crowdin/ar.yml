@@ -227,7 +227,7 @@ ar:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: لا يوجد حالياً حزم عمل مخصصة لهذا الإصدار.
@@ -1116,7 +1116,9 @@ ar:
   error_can_not_remove_role: هذا الدور هو قيد الاستخدام ولا يمكن حذفه.
   error_can_not_reopen_work_package_on_closed_version: لا يمكن إعادة فتح مجموعة العمل
     المسندة الى نسخة مغلقة
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: الرجاءاختر مستخدم ودور.
+  error_code: Error %{code}
   error_cookie_missing: ملف تعريف الارتباط "كوكي" لأوبن بروجكت مفقود. من فضلك تأكد
     من أن يتم تمكين ملفات تعريف الارتباط "كوكيز"، لأن هذا التطبيق لن يعمل بشكل صحيح
     دون ذلك.
@@ -1141,6 +1143,10 @@ ar:
   error_work_package_not_found_in_project: مجموعة العمل غير موجودة, أو أنها لا تخص
     هذا المشروع
   error_must_be_project_member: يجب أن تكون عضو في المشروع
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: لم يتم تعريف حالة افتراضية لمجموعة العمل.
     رجاء تحقق من اعداداتك ( من "ادارة-->حالات مجموعة العمل").
   error_no_type_in_project: هذا المشروع غير مرتبط بأي نوع. رجاء تحقق من اعدادات المشروع.
@@ -1224,6 +1230,7 @@ ar:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: دليل المستخدم
       faq: الاسئلة الاكثر شيوعا(FAQ)
       glossary: معجم المصطلحات
@@ -1410,6 +1417,7 @@ ar:
   label_equals: يكون
   label_everywhere: everywhere
   label_example: مثال
+  label_import: Import
   label_export_to: 'متاح أيضاً في:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: ساعة%{value}
@@ -1449,7 +1457,7 @@ ar:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: الصفحة الرئيسية
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: في
   label_in_less_than: في أقل من
   label_in_more_than: في أكثر من
@@ -1699,6 +1707,7 @@ ar:
   label_updated_time: قبل%{value} تحديث
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: قبل %{author}%{age} تحديث وفق
+  label_upgrade_guides: Upgrade guides
   label_used_by: مستخدم من قبل
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2818,6 +2827,13 @@ ar:
 '
   menu_item: عناصر القائمة
   menu_item_setting: الظهور
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: عنصر القائمة "%{title}"
   wiki_menu_item_setting: الظهور
   wiki_menu_item_new_main_item_explanation: 'يتم حذف عنصر القائمة Wiki الرئيسي فقط.

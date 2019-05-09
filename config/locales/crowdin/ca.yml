@@ -229,7 +229,7 @@ ca:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: Actualment no hi ha cap paquet de treball assignat a
@@ -1064,7 +1064,9 @@ ca:
   error_can_not_remove_role: Aquest rol s'està utilitzant i no es pot suprimir.
   error_can_not_reopen_work_package_on_closed_version: Un paquet de treball assignat
     a una versió tancada no es pot reobrir
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Trieu un usuari i un rol.
+  error_code: Error %{code}
   error_cookie_missing: La cookie d'OpenProject no s'ha trobat. Assegureu-vos que
     les cookies estan habilitades, ja que aquesta aplicació no pot funcionar correctament
     sense.
@@ -1090,6 +1092,10 @@ ca:
   error_work_package_not_found_in_project: El paquet de treball no s'ha trobat o no
     pertany a aquest projecte
   error_must_be_project_member: ha de ser membre del projecte
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: No hi ha cap estat de paquet de treball definit
     per defecte. Comproveu la configuració ("Administració-> Estats dels paquets de
     treball").
@@ -1177,6 +1183,7 @@ ca:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: Guies d'usuari
       faq: Preguntes Més Freqüents
       glossary: Glossari
@@ -1365,6 +1372,7 @@ ca:
   label_equals: és
   label_everywhere: everywhere
   label_example: Exemple
+  label_import: Import
   label_export_to: 'També disponible en:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} hora"
@@ -1402,7 +1410,7 @@ ca:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: Inici
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: en
   label_in_less_than: en menys de
   label_in_more_than: en més de
@@ -1654,6 +1662,7 @@ ca:
   label_updated_time: Actualitzat fa %{value}
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Actualitzat per %{author} fa %{age}
+  label_upgrade_guides: Upgrade guides
   label_used_by: Utilitzat per
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2808,6 +2817,13 @@ ca:
 '
   menu_item: Element de menú
   menu_item_setting: Visibilitat
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Element de menú per a la pàgina wiki "%{title}"
   wiki_menu_item_setting: Visibilitat
   wiki_menu_item_new_main_item_explanation: 'Esteu Suprimint l''únic l''element de

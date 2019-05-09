@@ -197,7 +197,7 @@ lol:
       edit_query: crwdns122942:0crwdne122942:0
       query_group_placeholder: crwdns122944:0crwdne122944:0
       reset: crwdns122946:0crwdne122946:0
-      type_color_text: 'crwdns122948:0crwdne122948:0
+      type_color_text: 'crwdns129702:0crwdne129702:0
 
 '
   versions:
@@ -965,7 +965,9 @@ lol:
   error_can_not_invite_user: crwdns124128:0crwdne124128:0
   error_can_not_remove_role: crwdns124130:0crwdne124130:0
   error_can_not_reopen_work_package_on_closed_version: crwdns124132:0crwdne124132:0
+  error_can_not_find_all_resources: crwdns129684:0crwdne129684:0
   error_check_user_and_role: crwdns124134:0crwdne124134:0
+  error_code: crwdns129688:0%{code}crwdne129688:0
   error_cookie_missing: crwdns124136:0crwdne124136:0
   error_custom_option_not_found: crwdns124138:0crwdne124138:0
   error_dependent_work_package: crwdns124140:0%{related_id}crwdnd124140:0%{related_subject}crwdnd124140:0%{error}crwdne124140:0
@@ -982,6 +984,8 @@ lol:
   error_work_package_done_ratios_not_updated: crwdns124162:0crwdne124162:0
   error_work_package_not_found_in_project: crwdns124164:0crwdne124164:0
   error_must_be_project_member: crwdns124166:0crwdne124166:0
+  error_migrations_are_pending: crwdns129690:0crwdne129690:0
+  error_migrations_visit_upgrade_guides: crwdns129692:0crwdne129692:0
   error_no_default_work_package_status: crwdns124168:0crwdne124168:0
   error_no_type_in_project: crwdns124170:0crwdne124170:0
   error_omniauth_registration_timed_out: crwdns124172:0crwdne124172:0
@@ -1057,6 +1061,7 @@ lol:
         you_contribute: crwdns124290:0crwdne124290:0
     links:
       upgrade_enterprise_edition: crwdns124292:0crwdne124292:0
+      postgres_migration: crwdns129698:0crwdne129698:0
       user_guides: crwdns124294:0crwdne124294:0
       faq: crwdns124296:0crwdne124296:0
       glossary: crwdns124298:0crwdne124298:0
@@ -1239,6 +1244,7 @@ lol:
   label_equals: crwdns124642:0crwdne124642:0
   label_everywhere: crwdns124644:0crwdne124644:0
   label_example: crwdns124646:0crwdne124646:0
+  label_import: crwdns129680:0crwdne129680:0
   label_export_to: crwdns124648:0crwdne124648:0
   label_expanded_click_to_collapse: crwdns124650:0crwdne124650:0
   label_f_hour: crwdns124652:0%{value}crwdne124652:0
@@ -1275,7 +1281,7 @@ lol:
   label_hierarchy_leaf: crwdns124714:0crwdne124714:0
   label_home: crwdns124716:0crwdne124716:0
   label_subject_or_id: crwdns124718:0crwdne124718:0
-  label_impressum: crwdns129646:0crwdne129646:0
+  label_impressum: crwdns129696:0crwdne129696:0
   label_in: crwdns124720:0crwdne124720:0
   label_in_less_than: crwdns124722:0crwdne124722:0
   label_in_more_than: crwdns124724:0crwdne124724:0
@@ -1524,6 +1530,7 @@ lol:
   label_updated_time: crwdns125208:0%{value}crwdne125208:0
   label_updated_time_at: crwdns125210:0%{author}crwdnd125210:0%{age}crwdne125210:0
   label_updated_time_by: crwdns125212:0%{author}crwdnd125212:0%{age}crwdne125212:0
+  label_upgrade_guides: crwdns129694:0crwdne129694:0
   label_used_by: crwdns125214:0crwdne125214:0
   label_used_by_types: crwdns125216:0crwdne125216:0
   label_used_in_projects: crwdns125218:0crwdne125218:0
@@ -2458,6 +2465,10 @@ lol:
 '
   menu_item: crwdns126830:0crwdne126830:0
   menu_item_setting: crwdns126832:0crwdne126832:0
+  mysql_deprecation:
+    notice: 'crwdns129700:0crwdne129700:0
+
+'
   wiki_menu_item_for: crwdns126834:0%{title}crwdne126834:0
   wiki_menu_item_setting: crwdns126836:0crwdne126836:0
   wiki_menu_item_new_main_item_explanation: 'crwdns126838:0crwdne126838:0

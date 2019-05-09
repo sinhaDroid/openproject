@@ -22,6 +22,8 @@ vi:
       upsale:
         boards: Need to freely structure your work in a board view?
         check_out_link: Check out the Enterprise Edition.
+      lists:
+        delete: Delete list
     card:
       add_new: Add new card
       highlighting:
@@ -183,6 +185,8 @@ vi:
           title: Work packages created by me
         work_packages_watched:
           title: Work packages watched by me
+        work_packages_table:
+          title: Work Packages
         work_packages_calendar:
           title: Lịch
     label_activate: Activate
@@ -257,6 +261,7 @@ vi:
     label_more_than_ago: nhiều hơn mấy ngày trước
     label_my_page: Trang của tôi
     label_next: Tiếp
+    label_no_color: No color
     label_no_data: Không có dữ liệu để hiển thị
     label_no_due_date: không có ngày kết thúc
     label_no_start_date: không có ngày bắt đầu
@@ -375,8 +380,8 @@ vi:
           lists: You can create multiple lists (columns) within one Board view, e.g.
             to create a KANBAN board.
           add: Click the + will <b>add a new card</b> to the list within a Board.
-          drag: Drag & Drop your cards within a list to re-order, or the another list.
-            A double click will open the details view.
+          drag: Drag & Drop your cards within a list to re-order, or to drag to another
+            list. A double click will open the details view.
         wp:
           toggler: Now let's have a look at the <b>Work package</b> section, which
             gives you a more detailed view of your work.

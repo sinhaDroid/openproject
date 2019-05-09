@@ -83,8 +83,10 @@ describe 'Status action board', type: :feature, js: true do
       # Create new board
       board_page = board_index.create_board action: :Status
 
-      # expect lists of default and closed status
+      # expect lists of default status
       board_page.expect_list 'Open'
+
+      board_page.add_list nil, value: 'Closed'
       board_page.expect_list 'Closed'
 
       board_page.board(reload: true) do |board|
@@ -142,7 +144,7 @@ describe 'Status action board', type: :feature, js: true do
 
       # Try to drag to whatever, which has no workflow
       board_page.move_card(0, from: 'Closed', to: 'Whatever')
-      board_page.expect_notification(
+      board_page.expect_and_dismiss_notification(
         type: :error,
         message: "Status is invalid because no valid transition exists from old to new status for the current user's roles."
       )

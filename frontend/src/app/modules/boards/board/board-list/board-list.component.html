@@ -11,39 +11,51 @@
 
     <div class="board-list--header">
       <editable-toolbar-title [title]="query.name"
+                              [smallHeader]="true"
                               [inFlight]="inFlight"
                               (onSave)="renameQuery(query, $event)"
-                              [editable]="!!query.updateImmediately"
-                              [initialFocus]="initiallyFocused()"
+                              [editable]="canRename"
+                              [initialFocus]="initiallyFocused"
                               class="-small">
       </editable-toolbar-title>
+
+      <div class="board-list--menu">
+        <a boardListDropdown class="board-list--more-menu" *ngIf="canDelete">
+          <op-icon icon-classes="icon-show-more-horizontal"></op-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="board-list--query-container"
+         [ngClass]="{ '-with-create-button': showAddButton }">
       <button [title]="text.addCard"
               *ngIf="board.isAction && showAddButton"
               (accessibleClick)="addNewCard()"
-              class="board-list--card-add-button button -narrow">
+              class="board-list--add-button board-list--card-add-button button">
         <op-icon icon-classes="icon-small icon-add"></op-icon>
       </button>
       <button [title]="text.addCard"
               *ngIf="!board.isAction && showAddButton"
-              class="board-list--card-dropdown-button button -narrow"
+              class="board-list--add-button board-list--card-dropdown-button button"
               addCardDropdown>
         <op-icon icon-classes="icon-small icon-add"></op-icon>
       </button>
 
-      <div class="board-list--delete-icon">
-        <accessible-by-keyboard *ngIf="!!query.delete"
-                                linkClass="button -narrow -no-decoration"
-                                (execute)="deleteList(query)">
-          <op-icon icon-classes="icon-small icon-delete"></op-icon>
-        </accessible-by-keyboard>
-      </div>
-    </div>
-
-    <div class="board-list--query-container">
       <wp-card-view [dragAndDropEnabled]="dragAndDropEnabled"
+                    [workPackageAddedHandler]="workPackageAddedHandler"
                     [cardsRemovable]="board.isFree && canManage"
-                    [highlightingMode]="board.highlightingMode">
+                    [highlightingMode]="board.highlightingMode"
+                    [showStatusButton]="board.isFree">
       </wp-card-view>
     </div>
   </ng-container>
+  <div class="notification-box -error" *ngIf="loadingError">
+    <p>
+      <span [textContent]="errorMessage"></span>
+      &ngsp;
+      <a role="button" (accessibleClick)="onRemove.emit()">
+        <span [textContent]="text.click_to_remove"></span>
+      </a>
+    </p>
+  </div>
 </div>

@@ -33,7 +33,8 @@ import {
   Input,
   OnChanges,
   OnInit,
-  Output, SimpleChanges,
+  Output,
+  SimpleChanges,
   ViewChild
 } from "@angular/core";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
@@ -54,6 +55,7 @@ export class EditableToolbarTitleComponent implements OnInit, OnChanges {
   @Input() public inFlight:boolean = false;
   @Input() public showSaveCondition:boolean = false;
   @Input() public initialFocus:boolean = false;
+  @Input() public smallHeader:boolean = false;
 
   @Output() public onSave = new EventEmitter<string>();
   @Output() public onEmptySubmit = new EventEmitter<void>();
@@ -104,11 +106,22 @@ export class EditableToolbarTitleComponent implements OnInit, OnChanges {
     if (changes.inputTitle) {
       this.selectedTitle = changes.inputTitle.currentValue;
     }
+
+    if (changes.initialFocus && changes.initialFocus.firstChange && this.inputField!) {
+      const field:HTMLInputElement = this.inputField!.nativeElement;
+      this.selectInputOnInitalFocus(field);
+    }
+
   }
 
-  public selectInputOnInitalFocus(event:FocusEvent) {
+  public onFocus(event:FocusEvent) {
+    this.selectInputOnInitalFocus(event.target as HTMLInputElement);
+  }
+
+  public selectInputOnInitalFocus(input:HTMLInputElement) {
     if (this.initialFocus) {
-      (event.target as HTMLInputElement).select();
+      input.select();
+      this.initialFocus = false;
     }
   }
 

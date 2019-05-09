@@ -97,7 +97,7 @@ openproject config:get DATABASE_URL
 # mysql2://user:password@localhost:3306/dbname
 
 # Re-export but replace mysql2 with mysql!
-export MYSQL_DATABSAE_URL="mysql://user:password@localhost:3306/dbname"
+export MYSQL_DATABASE_URL="mysql://user:password@localhost:3306/dbname"
 ```
 
 
@@ -123,17 +123,18 @@ export POSTGRES_DATABASE_URL="postgresql://openproject:<PASSWORD>@localhost/open
 
 ## Migrating the databases
 
-You are now ready to use `pgloader`. You simply point it the old and new database URL
+You are now ready to use `pgloader`. You simply point it the old and new database URL while specifying the option
+`--with "preserve index names"` which ensures that index names are kept identical.
 
 ```bash
-pgloader --verbose $MYSQL_DATABASE_URL $POSTGRES_DATABASE_URL
+pgloader --verbose --with "preserve index names" $MYSQL_DATABASE_URL $POSTGRES_DATABASE_URL
 ```
 
 This might take a while depending on current installation size.
 
 ### Index attachments for fulltext search
 
-One of the benefits of using PostgreSql over MySql is the support for fulltext search on attachments. The fulltext search feature relies on the existence of two additional columns for attachments that need to be added now ff the migration to PostgreSql is done for an OpenProject >= **8.0**. If the OpenProject version is below **8.0** the next two commands can be skipped.
+One of the benefits of using PostgreSQL over MySql is the support for fulltext search on attachments. The fulltext search feature relies on the existence of two additional columns for attachments that need to be added now ff the migration to PostgreSql is done for an OpenProject >= **8.0**. If the OpenProject version is below **8.0** the next two commands can be skipped.
 
 In order to add the necessary columns to the database, run
 
@@ -149,18 +150,28 @@ openproject run rails attachments:extract_fulltext_where_missing
 
 If a large set of attachments already exists, executing the command might take a while.
 
+### Indexes on relations table
+
+You will also need to rebuild the index on the relations table. Simply run the following command
+to re-run the migration.
+
+```bash
+openproject run rails db:migrate:redo VERSION=20180105130053
+```
 
 ## Optional: Uninstall MySQL
 
 If you let the packaged installation auto-install MySQL before and no longer need it, you can remove MySQL packages. 
 
-You can check the output of `dpkg - l | grep mysql` to check for packages removable. Only keep `libmysqlclient-dev`  for Ruby dependencies on the mysql adapter.
+You can check the output of `dpkg -l | grep mysql` to check for packages removable. Only keep `libmysqlclient-dev`  for Ruby dependencies on the mysql adapter.
 
 The following is an exemplary removal of an installed version MySQL 5.7. 
 
 ```
-[root@host] apt-get remove mysql-client-5.7 mysql-server-5.7 mysql-common
+[root@host] apt-get remove mysql-server
 ```
+
+**Note:** OpenProject still depends on `mysql-common` and other dev libraries of MySQL to build the `mysql2` gem for talking to MySQL databases. Depending on what packages you try to uninstall, `openproject` will be listed as a dependent package to be uninstalled if trying to uninstall `mysql-common`. Be careful here with the confirmation of removal, because it might just remove openproject itself due to the apt depndency management.
 
 
 ## Running openproject reconfigure
@@ -172,9 +183,8 @@ openproject reconfigure
 ```
 
 
-
-In the MySQL installation screen, select `skip` now. Keep all other values the same by simply confirming them by pressing  `enter` .
-
+In the database installation screen, select `skip` now.
+Keep all other values the same by simply confirming them by pressing  `enter` .
 
 
 After the configuration process has run through, your database will be running on PostgreSQL!

@@ -27,6 +27,7 @@
 #++
 
 require_relative '../../shared/selenium_workarounds'
+require_relative '../ng_select_autocomplete_helpers'
 
 module Components
   module WorkPackages
@@ -34,6 +35,7 @@ module Components
       include Capybara::DSL
       include RSpec::Matchers
       include SeleniumWorkarounds
+      include ::Components::NgSelectAutocompleteHelpers
 
       def open
         retry_block do
@@ -72,8 +74,15 @@ module Components
         expect(page).to have_conditional_selector(present, '.advanced-filters--add-filter-value option', text: name)
       end
 
+      def expect_loaded
+        expect(filter_button).to have_selector('.badge', wait: 20)
+      end
+
       def add_filter_by(name, operator, value, selector = nil)
-        select name, from: "add_filter_select"
+        select_autocomplete page.find('.advanced-filters--add-filter-value'),
+                            query: name,
+                            results_selector: '.ng-dropdown-panel-items'
+
 
         set_filter(name, operator, value, selector)
       end
@@ -97,10 +106,12 @@ module Components
 
         expect(page).to have_select("operators-#{id}", selected: operator)
 
-        if value
-          expect_value(id, value)
+        if value == :placeholder
+          expect_value_placeholder(id)
+        elsif value
+          expect_value(id, Array(value))
         else
-          expect(page).to have_no_select("values-#{id}")
+          expect(page).to have_no_selector("#values-#{id}")
         end
       end
 
@@ -133,10 +144,12 @@ module Components
 
       def set_value(id, value)
         retry_block do
-          within_values(id) do |is_select|
-            if is_select
-              select value, from: "values-#{id}"
-            else
+          if page.has_selector?("#filter_#{id} .ng-select-container")
+            select_autocomplete page.find("#filter_#{id}"),
+                                query: value,
+                                results_selector: '.advanced-filters--ng-select .ng-dropdown-panel-items'
+          else
+            within_values(id) do
               page.all('input').each_with_index do |input, index|
                 # Wait a bit to insert the values
                 ensure_value_is_input_correctly input, value: value[index]
@@ -146,10 +159,20 @@ module Components
         end
       end
 
+      def expect_value_placeholder(id)
+        if page.has_selector?("#filter_#{id} .ng-select-container")
+          expect(page).to have_selector("#filter_#{id} .ng-placeholder", text: I18n.t('js.placeholders.selection'))
+        else
+          raise "Non ng-select may not have placeholders currently"
+        end
+      end
+
       def expect_value(id, value)
         within_values(id) do |is_select|
           if is_select
-            expect(page).to have_select("values-#{id}", selected: value)
+            value.each do |v|
+              expect(page).to have_selector("#values-#{id} .ng-value-label", text: v)
+            end
           else
             page.all('input').each_with_index do |input, index|
               expect(input.value).to eql(value[index])
@@ -160,9 +183,7 @@ module Components
 
       def within_values(id)
         page.within("#filter_#{id} .advanced-filters--filter-value", wait: 10) do
-          inputs = page.first('select, input')
-
-          yield inputs.tag_name == 'select'
+          yield page.has_selector?('.ng-select-container')
         end
       end
     end

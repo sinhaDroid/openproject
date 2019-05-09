@@ -228,7 +228,7 @@ sv-SE:
       reset: Återställ standardinställningar
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: Det finns för närvarande inga arbetspaket tilldelade
@@ -1053,7 +1053,9 @@ sv-SE:
   error_can_not_remove_role: Denna roll används och kan inte tas bort.
   error_can_not_reopen_work_package_on_closed_version: Ett arbetspaket som tilldelats
     en stängd version kan inte öppnas igen
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Välj en användare och en roll.
+  error_code: Error %{code}
   error_cookie_missing: OpenProject cookie saknas. Vänligen kontrollera att cookies
     är aktiverade, eftersom detta program inte fungerar korrekt annars.
   error_custom_option_not_found: Alternativet finns inte.
@@ -1078,6 +1080,10 @@ sv-SE:
   error_work_package_not_found_in_project: Arbetspaketet hittades inte eller hör inte
     till detta projekt
   error_must_be_project_member: måste vara projektmedlem
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Inget standardvärde för status för arbetspaket
     har definieras. Vänligen kontrollera din konfiguration (gå till "Administration->
     arbetspaket status").
@@ -1163,6 +1169,7 @@ sv-SE:
           Edition bidrar du väsentligt till detta open source-projekt.
     links:
       upgrade_enterprise_edition: Uppgradera till Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: Användarguider
       faq: Vanliga frågor (FAQ)
       glossary: Ordlista
@@ -1350,6 +1357,7 @@ sv-SE:
   label_equals: är
   label_everywhere: everywhere
   label_example: Exempel
+  label_import: Import
   label_export_to: 'Finns även som:'
   label_expanded_click_to_collapse: Expanderat. Klicka för att dölja
   label_f_hour: "%{value} timme"
@@ -1387,7 +1395,7 @@ sv-SE:
   label_hierarchy_leaf: Hierarki-blad
   label_home: Hem
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: i
   label_in_less_than: i mindre än
   label_in_more_than: i mer än
@@ -1636,6 +1644,7 @@ sv-SE:
   label_updated_time: Uppdaterad %{value} sen
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Uppdaterad av %{author} %{age} sen
+  label_upgrade_guides: Upgrade guides
   label_used_by: Används av
   label_used_by_types: Används av typer
   label_used_in_projects: Används i projekt
@@ -2744,6 +2753,13 @@ sv-SE:
 '
   menu_item: Menyalternativ
   menu_item_setting: Synlighet
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menyobjekt för wiki-sida "%{title}"
   wiki_menu_item_setting: Synlighet
   wiki_menu_item_new_main_item_explanation: 'Du tar bort det enda huvudobjektet i

@@ -22,6 +22,8 @@ lv:
       upsale:
         boards: Need to freely structure your work in a board view?
         check_out_link: Check out the Enterprise Edition.
+      lists:
+        delete: Delete list
     card:
       add_new: Add new card
       highlighting:
@@ -180,6 +182,8 @@ lv:
           title: Work packages created by me
         work_packages_watched:
           title: Work packages watched by me
+        work_packages_table:
+          title: Pieteikumi
         work_packages_calendar:
           title: Kalendārs
     label_activate: Activate
@@ -254,6 +258,7 @@ lv:
     label_more_than_ago: more than days ago
     label_my_page: Mana lapa
     label_next: Nākošā
+    label_no_color: No color
     label_no_data: Nav dati
     label_no_due_date: bez beigu datuma
     label_no_start_date: bez sākuma datuma
@@ -372,8 +377,8 @@ lv:
           lists: You can create multiple lists (columns) within one Board view, e.g.
             to create a KANBAN board.
           add: Click the + will <b>add a new card</b> to the list within a Board.
-          drag: Drag & Drop your cards within a list to re-order, or the another list.
-            A double click will open the details view.
+          drag: Drag & Drop your cards within a list to re-order, or to drag to another
+            list. A double click will open the details view.
         wp:
           toggler: Now let's have a look at the <b>Work package</b> section, which
             gives you a more detailed view of your work.

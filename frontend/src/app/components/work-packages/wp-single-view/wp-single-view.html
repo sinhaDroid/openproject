@@ -1,6 +1,6 @@
 <div *ngIf="workPackage"
      class="work-package--single-view"
-     [ngClass]="{'-can-have-columns' : workPackage.isNew }">
+     [ngClass]="{'-can-have-columns' : enableTwoColumnLayout }">
   <div class="wp-new--subject-wrapper"
        *ngIf="workPackage.isNew">
     <wp-edit-field [workPackageId]="workPackage.id"
@@ -72,6 +72,10 @@
         </a>
       </p>
     </div>
+  </div>
+
+  <div *ngIf="workPackage.bcf">
+    <bcf-wp-single-view [workPackage]="workPackage"></bcf-wp-single-view>
   </div>
 
   <div class="attributes-group description-group">

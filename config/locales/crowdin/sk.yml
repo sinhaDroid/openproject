@@ -224,10 +224,9 @@ sk:
       edit_query: Upraviť tabuľku
       query_group_placeholder: Zadajte názov tabuľky
       reset: Obnoviť predvolené
-      type_color_text: 'Kliknutím priradíte alebo zmeníte farbu tohto typu. Zvolená
-        farba rozlišuje pracovné balíčky v Ganttových grafoch.
-
-'
+      type_color_text: |
+        Click to assign or change the color of this type. The selected color distinguishes work packages
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: Momentálne nie sú priradené žiadne pracovné balíky k
@@ -535,7 +534,7 @@ sk:
         too_long: je príliš dlhý (maximum je %{count} znakov).
         too_short: je príliš krátky (minimum je %{count} znakov).
         unchangeable: nie je možné zmeniť.
-        unremovable: cannot be removed.
+        unremovable: nie je možné zmazať.
         wrong_length: má chybnú dĺžku (správne má byť %{count} znakov).
       models:
         custom_field:
@@ -1103,7 +1102,9 @@ sk:
   error_can_not_remove_role: Táto rola sa používa a nedá sa odstrániť.
   error_can_not_reopen_work_package_on_closed_version: Pracovný balíček, ktorý je
     priradený na uzatvorenú verziu sa nedá znovu-otvoriť
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Zvoľte si, prosím, používateľ a rolu.
+  error_code: Error %{code}
   error_cookie_missing: Chýbajú súbory cookie pre OpenProject. Skontrolujte, či sú
     povolené súbory cookie, nakoľko bez nich táto aplikácia nebude správne fungovať.
   error_custom_option_not_found: Nastavenie neexistuje.
@@ -1128,6 +1129,10 @@ sk:
   error_work_package_not_found_in_project: Pracovný balíček nebol nájdený alebo nepatrí
     k tomuto projektu
   error_must_be_project_member: musíte byť členom projektu
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: Žiadny predvolený stav pracovného balíka nieje
     definovaný. Prosím skontrolujte konfiguráciu (ísť do "Správa-> pracovného balíka
     stavy").
@@ -1214,6 +1219,7 @@ sk:
           Edition významne prispievate k otvorenej komunite OpenProjectu.
     links:
       upgrade_enterprise_edition: Upgrade na Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: Používateľské príručky
       faq: Často kladené otázky
       glossary: Slovníček pojmov
@@ -1401,6 +1407,7 @@ sk:
   label_equals: je
   label_everywhere: všade
   label_example: Príklad
+  label_import: Import
   label_export_to: 'K dispozícii tiež ako:'
   label_expanded_click_to_collapse: Rozbalené. Kliknutí zbalíte
   label_f_hour: "%{value} hodina"
@@ -1438,7 +1445,7 @@ sk:
   label_hierarchy_leaf: Úroveň hierarchie
   label_home: Úvod
   label_subject_or_id: Predmet alebo ID
-  label_impressum: Impresum
+  label_impressum: Legal notice
   label_in: v
   label_in_less_than: v menej ako
   label_in_more_than: vo viac ako
@@ -1564,7 +1571,7 @@ sk:
   label_planning: Plánovanie
   label_please_login: Prosím prihláste sa
   label_plugins: Doplnky
-  label_modules_and_plugins: Modules and Plugins
+  label_modules_and_plugins: Moduly a Pluginy
   label_precedes: predchádza
   label_preferences: Predvoľby
   label_preview: Náhľad
@@ -1689,6 +1696,7 @@ sk:
   label_updated_time: Aktualizované pred %{value}
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Aktualizované používateľom %{author} pred %{age}
+  label_upgrade_guides: Upgrade guides
   label_used_by: Používané
   label_used_by_types: Používa sa podľa typov
   label_used_in_projects: Použité v projektoch
@@ -2830,6 +2838,13 @@ sk:
 '
   menu_item: Položka menu
   menu_item_setting: Viditeľnosť
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Položka menu pre wiki "%{title}"
   wiki_menu_item_setting: Viditeľnosť
   wiki_menu_item_new_main_item_explanation: 'Zmažete iba hlavnú položku menu wiki.

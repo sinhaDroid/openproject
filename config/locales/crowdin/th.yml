@@ -227,7 +227,7 @@ th:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: There are currently no work packages assigned to this
@@ -1046,7 +1046,9 @@ th:
   error_can_not_remove_role: บทบาทนี้ถูกใช้อยู่และไม่สามารถลบได้
   error_can_not_reopen_work_package_on_closed_version: มีการมอบหมายชุดภารกิจนี้ไปยังเวอร์ชั่นที่ปิดแล้ว
     ซึ่งไม่สามารถเปิดใหม่ได้
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: โปรดเลือกผู้ใช้และบทบาท
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Option does not exist.
@@ -1069,6 +1071,10 @@ th:
   error_work_package_done_ratios_not_updated: ชุดภารกิจที่เสร็จแล้ว ไม่สามารถปรับปรุงอัตราส่วนได้
   error_work_package_not_found_in_project: ไม่พบชุดภารกิจ หรือชุดภารกิจไม่ได้เป็นของโครงการนี้
   error_must_be_project_member: ต้องเป็นสมาชิกโครงการ
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: ไม่ได้กำหนดค่าเริ่มต้นสถานะของชุดภารกิจ โปรดตรวจสอบการตั้งค่าของคุณ
     (ไปที่ "การจัดการระบบ -> สถานะชุดภารกิจ")
   error_no_type_in_project: ไม่พบประเภทที่เกี่ยวข้องกับโครงการนี้ โปรดตรวจสอบการตั้งค่าโครงการ
@@ -1151,6 +1157,7 @@ th:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: User guides
       faq: FAQ
       glossary: Glossary
@@ -1336,6 +1343,7 @@ th:
   label_equals: เป็น
   label_everywhere: everywhere
   label_example: ตัวอย่าง
+  label_import: Import
   label_export_to: 'ยังสามารถพบใน:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} ชั่วโมง"
@@ -1372,7 +1380,7 @@ th:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: หน้าหลัก
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: ใน
   label_in_less_than: ในไม่เกิน
   label_in_more_than: ในมากกว่า
@@ -1621,6 +1629,7 @@ th:
   label_updated_time: ปรับปรุงเมื่อ %{value} ที่ผ่านมา
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: ปรับปรุงโดย %{author} เมื่อ %{age} ที่ผ่านมา
+  label_upgrade_guides: Upgrade guides
   label_used_by: ใช้โดย
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2691,6 +2700,13 @@ th:
 '
   menu_item: เมนู
   menu_item_setting: การมองเห็น
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: เมนูสำหรับหน้าวิกิ "%{title}"
   wiki_menu_item_setting: การมองเห็น
   wiki_menu_item_new_main_item_explanation: 'คุณกำลังลบเฉพาะเมนูของวิกิหลัก ตอนนี้คุณต้องเลือกหน้าวิกิที่ไอเทมหลักจะถูกสร้าง

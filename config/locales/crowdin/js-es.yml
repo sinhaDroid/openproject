@@ -23,6 +23,8 @@ es:
       upsale:
         boards: "¿Necesitas estructurar libremente tu trabajo en una sección de tablero?"
         check_out_link: Vea la versión Enterprise Edition.
+      lists:
+        delete: Eliminar lista
     card:
       add_new: Añadir nueva tarjeta
       highlighting:
@@ -184,6 +186,8 @@ es:
           title: Paquetes de trabajo creados por mí
         work_packages_watched:
           title: Paquetes de trabajo vigilados por mí
+        work_packages_table:
+          title: Paquetes de trabajo
         work_packages_calendar:
           title: Calendario
     label_activate: Activar
@@ -259,6 +263,7 @@ es:
     label_more_than_ago: más días atrás
     label_my_page: Mi página
     label_next: Siguiente
+    label_no_color: Sin color
     label_no_data: No hay datos disponibles
     label_no_due_date: sin fecha de finalizacion
     label_no_start_date: sin fecha de inicio
@@ -384,8 +389,8 @@ es:
             sección del Tablero, por ej. para crear un tablero KANBAN.
           add: Al hacer click en + <b>se añadirá una nueva tarjeta</b> a la lista
             dentro de un Tablero.
-          drag: Arrastra y Coloca tus tarjetas en una lista para reorganizarlas, o
-            ponlas en la lista otros. Al hacer doble click se abrirá la ficha de detalles.
+          drag: Drag & Drop your cards within a list to re-order, or to drag to another
+            list. A double click will open the details view.
         wp:
           toggler: Ahora, veamos la sección <b>Paquete de trabajo</b>, que ofrece
             una vista más detallada de su trabajo.

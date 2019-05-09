@@ -227,7 +227,7 @@ uk:
       reset: Reset to defaults
       type_color_text: |
         Click to assign or change the color of this type. The selected color distinguishes work packages
-        in Gantt charts.
+        in Gantt charts. It is therefore recommended to use a strong color.
   versions:
     overview:
       no_results_title_text: There are currently no work packages assigned to this
@@ -1088,7 +1088,9 @@ uk:
   error_can_not_remove_role: Ця роль використовується і не може бути видалений.
   error_can_not_reopen_work_package_on_closed_version: Пакет робіт покладених на закритій
     версії не може бути відкритий
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Будь ласка виберіть користувача і роль.
+  error_code: Error %{code}
   error_cookie_missing: The OpenProject cookie is missing. Please ensure that cookies
     are enabled, as this application will not properly function without.
   error_custom_option_not_found: Option does not exist.
@@ -1112,6 +1114,10 @@ uk:
   error_work_package_not_found_in_project: The work package was not found or does
     not belong to this project
   error_must_be_project_member: must be project member
+  error_migrations_are_pending: Your OpenProject installation has pending database
+    migrations. You have likely missed running the migrations on your last upgrade.
+    Please check the upgrade guide to properly upgrade your installation.
+  error_migrations_visit_upgrade_guides: Please visit our upgrade guide documentation
   error_no_default_work_package_status: No default work package status is defined.
     Please check your configuration (Go to "Administration -> Work package statuses").
   error_no_type_in_project: No type is associated to this project. Please check the
@@ -1198,6 +1204,7 @@ uk:
           you substantially contribute to this Open-Source community effort.
     links:
       upgrade_enterprise_edition: Upgrade to Enterprise Edition
+      postgres_migration: Migrating your installation to PostgreSQL
       user_guides: User guides
       faq: FAQ
       glossary: Glossary
@@ -1385,6 +1392,7 @@ uk:
   label_equals: is
   label_everywhere: everywhere
   label_example: Example
+  label_import: Import
   label_export_to: 'Also available in:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} hour"
@@ -1422,7 +1430,7 @@ uk:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: Home
   label_subject_or_id: Subject or ID
-  label_impressum: Impressum
+  label_impressum: Legal notice
   label_in: in
   label_in_less_than: in less than
   label_in_more_than: in more than
@@ -1672,6 +1680,7 @@ uk:
   label_updated_time: Updated %{value} ago
   label_updated_time_at: "%{author} %{age}"
   label_updated_time_by: Updated by %{author} %{age} ago
+  label_upgrade_guides: Upgrade guides
   label_used_by: Used by
   label_used_by_types: Used by types
   label_used_in_projects: Used in projects
@@ -2798,6 +2807,13 @@ uk:
 '
   menu_item: Menu item
   menu_item_setting: Visibility
+  mysql_deprecation:
+    notice: 'Future versions of OpenProject will likely drop or reduce support for
+      MySQL and MariaDB databases. Your installation is still running on MySQL and
+      we suggest you migrate your installation to PostgreSQL. This process is easy
+      when following our migration guides:
+
+'
   wiki_menu_item_for: Menu item for wikipage "%{title}"
   wiki_menu_item_setting: Visibility
   wiki_menu_item_new_main_item_explanation: 'You are deleting the only main wiki menu
