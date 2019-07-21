@@ -26,16 +26,22 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {Component, OnDestroy} from "@angular/core";
+import {ChangeDetectionStrategy, Component, OnDestroy} from "@angular/core";
 import {untilComponentDestroyed} from 'ng2-rx-componentdestroyed';
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {OpTitleService} from "core-components/html/op-title.service";
 import {WorkPackagesViewBase} from "core-app/modules/work_packages/routing/wp-view-base/work-packages-view.base";
 import {take} from "rxjs/operators";
+import {DragAndDropService} from "core-app/modules/common/drag-and-drop/drag-and-drop.service";
 
 @Component({
   selector: 'wp-list',
-  templateUrl: './wp.list.component.html'
+  templateUrl: './wp.list.component.html',
+  styleUrls: ['./wp-list.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    DragAndDropService
+  ]
 })
 export class WorkPackagesListComponent extends WorkPackagesViewBase implements OnDestroy {
   text = {
@@ -54,6 +60,12 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
   /** Whether we're saving the query */
   querySaving:boolean;
 
+  /** Do we currently have query props ? */
+  hasQueryProps:boolean;
+
+  /** Should we show the pagination ? */
+  showPagination = true;
+
   /** Listener callbacks */
   unRegisterTitleListener:Function;
   removeTransitionSubscription:Function;
@@ -64,10 +76,15 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
   /** Project identifier of the list */
   projectIdentifier = this.$state.params['projectPath'] || null;
 
+  /** An overlay over the table shown for example when the filters are invalid */
+  showResultOverlay = false;
+
   private readonly titleService:OpTitleService = this.injector.get(OpTitleService);
 
   ngOnInit() {
     super.ngOnInit();
+
+    this.hasQueryProps = !!this.$state.params.query_props;
 
     // Load query initially
     this.wpTableRefresh.clear('Impending query loading.');
@@ -92,6 +109,8 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
     ).subscribe((query) => {
       this.updateTitle(query);
       this.currentQuery = query;
+      this.showPagination = !this.wpTableSortBy.isManualSortingMode;
+      this.cdRef.detectChanges();
     });
   }
 
@@ -117,7 +136,18 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
     return this.authorisationService.can(model, permission);
   }
 
-  public updateQueryName(val:string) {
+  public saveQueryFromTitle(val:string) {
+    if (this.currentQuery && this.currentQuery.persisted) {
+      this.updateQueryName(val);
+    } else {
+      this.wpListService
+        .create(this.currentQuery, val)
+        .then(() => this.querySaving = false)
+        .catch(() => this.querySaving = false);
+    }
+  }
+
+  updateQueryName(val:string) {
     this.querySaving = true;
     this.currentQuery.name = val;
     this.wpListService.save(this.currentQuery)
@@ -129,11 +159,11 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
   updateTitle(query:QueryResource) {
     if (query.persisted) {
       this.selectedTitle = query.name;
-      this.titleEditingEnabled = this.authorisationService.can('query', 'updateImmediately');
     } else {
       this.selectedTitle =  this.wpStaticQueries.getStaticName(query);
-      this.titleEditingEnabled = false;
     }
+
+    this.titleEditingEnabled = this.authorisationService.can('query', 'updateImmediately');
 
     // Update the title if we're in the list state alone
     if (this.$state.current.name === 'work-packages.list') {
@@ -145,7 +175,7 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
     let promise:Promise<unknown>;
 
     if (firstPage) {
-      promise = this.wpListService.loadCurrentResultsListFirstPage();
+      promise = this.loadCurrentQuery();
     } else {
       promise = this.wpListService.reloadCurrentResultsList();
     }
@@ -157,19 +187,26 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
     return promise;
   }
 
+  public updateResultVisibility(completed:boolean) {
+    this.showResultOverlay = !completed;
+  }
+
   protected updateQueryOnParamsChanges() {
     // Listen for param changes
     this.removeTransitionSubscription = this.$transitions.onSuccess({}, (transition):any => {
       let options = transition.options();
+      const params = transition.params('to');
+      this.hasQueryProps = !!params.query_props;
 
       // Avoid performing any changes when we're going to reload
       if (options.reload || (options.custom && options.custom.notify === false)) {
         return true;
       }
 
-      const params = transition.params('to');
       let newChecksum = this.wpListService.getCurrentQueryProps(params);
       let newId:string = params.query_id ? params.query_id.toString() : null;
+
+      this.cdRef.detectChanges();
 
       this.wpListChecksumService
         .executeIfOutdated(newId,
@@ -179,12 +216,15 @@ export class WorkPackagesListComponent extends WorkPackagesViewBase implements O
   }
 
   protected setupInformationLoadedListener() {
-    this.querySpace.tableRendering.onQueryUpdated
+    this
+      .querySpace
+      .initialized
       .values$()
-      .pipe(
-        take(1)
-      )
-      .subscribe(() => this.tableInformationLoaded = true);
+      .pipe(take(1))
+      .subscribe(() => {
+        this.tableInformationLoaded = true;
+        this.cdRef.detectChanges();
+      });
   }
 
   protected set loadingIndicator(promise:Promise<unknown>) {

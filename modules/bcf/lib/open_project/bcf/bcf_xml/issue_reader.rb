@@ -6,22 +6,36 @@ require_relative 'file_entry'
 
 module OpenProject::Bcf::BcfXml
   class IssueReader
-    attr_reader :zip, :entry, :issue, :extractor, :project, :user, :type
+    attr_reader :zip, :entry, :issue, :extractor, :project, :user, :import_options, :aggregations
+    attr_accessor :wp_last_updated_at, :is_update
 
-    def initialize(project, zip, entry, current_user:)
+    def initialize(project, zip, entry, current_user:, import_options:, aggregations:)
       @zip = zip
       @entry = entry
       @project = project
       @user = current_user
       @issue = find_or_initialize_issue
       @extractor = MarkupExtractor.new(entry)
-
-      # TODO fixed type
-      @type = ::Type.find_by(name: 'Issue [BCF]')
+      @import_options = import_options
+      @aggregations = aggregations
+      @doc = nil
+      @wp_last_updated_at = nil
+      @is_update = false
     end
 
     def extract!
-      issue.markup = extractor.markup
+      @doc = extractor.doc
+
+      treat_empty_titles
+      treat_unknown_types
+      treat_unknown_statuses
+      treat_unknown_priorities
+
+      extractor.doc = @doc
+
+      markup = @doc.to_xml(indent: 2)
+      issue.markup = markup
+      extractor.markup = markup
 
       # Viewpoints will be extended on import
       build_viewpoints
@@ -37,35 +51,155 @@ module OpenProject::Bcf::BcfXml
 
     private
 
+    ##
+    # BCF issues might have empty titles. OP needs one.
+    def treat_empty_titles
+      title_node = @doc.xpath('/Markup/Topic/Title').first
+      return if title_node&.content&.present?
+
+      title_node.content = "(Imported BCF issue contained no title)"
+    end
+
+    ##
+    # Handle unknown types during import
+    def treat_unknown_types
+      if aggregations.unknown_types.any?
+        if import_options[:unknown_types_action] == 'use_default'
+          replace_type_with(::Type.default.first&.name)
+        elsif import_options[:unknown_types_action] == 'chose' && import_options[:unknown_types_chose_ids].any?
+          replace_type_with(::Type.find_by(id: import_options[:unknown_types_chose_ids].first)&.name)
+        else
+          raise StandardError.new 'Unknown topic type found in import. Use an existing type name.'
+        end
+      end
+    end
+
+    def replace_type_with(new_type_name)
+      raise StandardError.new "New type name can't be blank." unless new_type_name.present?
+
+      @doc.xpath('/Markup/Topic').first.set_attribute('TopicType', new_type_name)
+    end
+
+    ##
+    # Handle unknown statuses during import
+    def treat_unknown_statuses
+      if aggregations.unknown_statuses.any?
+        if import_options[:unknown_statuses_action] == 'use_default'
+          replace_status_with(::Status.default&.name)
+        elsif import_options[:unknown_statuses_action] == 'chose' && import_options[:unknown_statuses_chose_ids].any?
+          replace_status_with(::Status.find_by(id: import_options[:unknown_statuses_chose_ids].first)&.name)
+        else
+          raise StandardError.new 'Unknown topic status found in import. Use an existing status name.'
+        end
+      end
+    end
+
+    def replace_status_with(new_status_name)
+      raise StandardError.new "New status name can't be blank." unless new_status_name.present?
+
+      @doc.xpath('/Markup/Topic').first.set_attribute('TopicStatus', new_status_name)
+    end
+
+    ##
+    # Handle unknown priorities during import
+    def treat_unknown_priorities
+      if aggregations.unknown_priorities.any?
+        if import_options[:unknown_priorities_action] == 'use_default'
+          # NOP The 'use_default' case gets already covered by OP.
+        elsif import_options[:unknown_priorities_action] == 'chose' && import_options[:unknown_priorities_chose_ids].any?
+          replace_priorities_with(::IssuePriority.find_by(id: import_options[:unknown_priorities_chose_ids].first)&.name)
+        else
+          raise StandardError.new 'Unknown topic priority found in import. Use an existing priority name.'
+        end
+      end
+    end
+
+    def replace_priorities_with(new_priority_name)
+      raise StandardError.new "New priority name can't be blank." unless new_priority_name.present?
+
+      priority_node = @doc.xpath('/Markup/Topic/Priority').first
+      if priority_node
+        priority_node.content = new_priority_name
+      else
+        # Valid BCF XML Topics must have a Title node. So we can add the Priority node just behind it and thus,
+        # maintain the schema's sequence compliance.
+        @doc.at('/Markup/Topic/Title').after("<Priority>#{new_priority_name}</Priority>")
+      end
+    end
+
     def synchronize_with_work_package
+      self.is_update = issue.work_package.present?
+      self.wp_last_updated_at = issue.work_package&.updated_at
+
       call =
-        if issue.work_package
+        if is_update
           update_work_package
         else
           create_work_package
         end
 
       if call.success?
-        wp = call.result
-        issue.work_package = wp
-        create_comment(user, I18n.t('bcf.bcf_xml.import_update_comment')) unless wp.previous_changes.empty?
+        issue.work_package = call.result
+        create_wp_comment(user, I18n.t('bcf.bcf_xml.import_update_comment')) if is_update
       else
         Rails.logger.error "Failed to synchronize BCF #{issue.uuid} with work package: #{call.errors.full_messages.join('; ')}"
       end
     end
 
-    def create_work_package
-      wp = WorkPackage.new work_package_attributes
+    def import_is_newer?
+      extractor.modified_date && extractor.modified_date > wp_last_updated_at
+    end
 
-      CreateWorkPackageService
-        .new(user: user)
-        .call(wp, send_notifications: false)
+    def create_work_package
+      call = WorkPackages::CreateService.new(user: user).call(work_package_attributes
+                                                                .merge(send_notifications: false)
+                                                                .symbolize_keys)
+
+      if call.success?
+        force_overwrite(call.result)
+      end
+
+      call
+    end
+
+    def author
+      find_user_in_project(extractor.author) || User.system
+    end
+
+    def assignee
+      find_user_in_project(extractor.assignee)
+    end
+
+    def type
+      type_name = extractor.type
+      type = ::Type.find_by(name: type_name)
+
+      return type if type.present?
+
+      return ::Type.default&.first if import_options[:unknown_types_action] == 'default'
+
+      if import_options[:unknown_types_action] == 'chose' &&
+         import_options[:unknown_types_chose_ids].any?
+        return ::Type.find_by(id: import_options[:unknown_types_chose_ids].first)
+      else
+        ServiceResult.new success: false,
+                          errors: issue.errors,
+                          result: issue
+      end
+    end
+
+    def start_date
+      extractor.creation_date.to_date unless is_update
     end
 
     def update_work_package
-      WorkPackages::UpdateService
-        .new(user: user, work_package: issue.work_package)
-        .call(attributes: work_package_attributes, send_notifications: false)
+      if import_is_newer?
+        WorkPackages::UpdateService
+          .new(user: user, model: issue.work_package)
+          .call(work_package_attributes.merge(send_notifications: false).symbolize_keys)
+      else
+        import_is_outdated(issue)
+      end
     end
 
     ##
@@ -81,10 +215,10 @@ module OpenProject::Bcf::BcfXml
         subject: extractor.title,
         description: extractor.description,
         due_date: extractor.due_date,
+        start_date: start_date,
 
         # Mapped attributes
-        author: find_user_in_project(extractor.author),
-        assigned_to: find_user_in_project(extractor.assignee),
+        assigned_to: assignee,
         status_id: statuses.fetch(extractor.status, statuses[:default]),
         priority_id: priorities.fetch(extractor.priority, priorities[:default])
       }.compact
@@ -93,19 +227,15 @@ module OpenProject::Bcf::BcfXml
     ##
     # Extend comments with new or updated values from XML
     def build_comments
-      extractor.comments.each do |data|
-        next if issue.comments.has_uuid?(data[:uuid])
-        comment = issue.comments.build data.slice(:uuid)
-
-        # Cannot link to a journal when no work package
-        next if issue.work_package.nil?
-        author = get_comment_author(data)
-        call = create_comment(author, data[:comment])
-
-        if call.success?
-          comment.journal = call.result
+      extractor.comments.each do |comment_data|
+        if issue.comments.has_uuid?(comment_data[:uuid], issue.id)
+          # Comment has already been imported once.
+          update_comment(comment_data)
         else
-          Rails.logger.error "Failed to create comment for BCF #{issue.uuid}: #{call.errors.full_messages.join('; ')}"
+          # Cannot link to a journal when no work package
+          next if issue.work_package.nil?
+
+          new_comment(comment_data)
         end
       end
     end
@@ -116,12 +246,37 @@ module OpenProject::Bcf::BcfXml
       author = find_user_in_project(comment[:author])
 
       # If none found, use the current user
-      return user if author.nil?
+      return User.system if author.nil?
 
       # If found, check if the author can comment
-      return user unless author.allowed_to?(:add_work_package_notes, project)
+      return User.system unless author.allowed_to?(:add_work_package_notes, project)
 
       author
+    end
+
+    ##
+    # The uploading user might not be the author of the topic/work package. Further, we need to correct the
+    # automatically set craetion timestamps.
+    def force_overwrite(work_package)
+      created_at = extractor.creation_date
+      if created_at || user != author
+        force_overwrite_work_package(created_at, work_package)
+        force_overwrite_first_journal(created_at, work_package)
+      end
+    end
+
+    def force_overwrite_first_journal(created_at, work_package)
+      journal = work_package.journals.first
+      journal.update_columns(created_at: created_at,
+                             user_id: author.id)
+
+      wp_journal = ::WorkPackageJournal.find_by(journal_id: journal.id)
+      wp_journal.update_columns author_id: author.id
+    end
+
+    def force_overwrite_work_package(created_at, work_package)
+      work_package.update_columns(created_at: created_at,
+                                  author_id: author.id)
     end
 
     ##
@@ -130,7 +285,7 @@ module OpenProject::Bcf::BcfXml
       project.users.find_by(mail: mail)
     end
 
-    def create_comment(author, content)
+    def create_wp_comment(author, content)
       ::AddWorkPackageNoteService
         .new(user: author, work_package: issue.work_package)
         .call(content)
@@ -171,18 +326,61 @@ module OpenProject::Bcf::BcfXml
     ##
     # Get an entry within the uuid
     def as_file_entry(filename)
-      entry = zip.find_entry [topic_uuid, filename].join('/')
+      file_entry = zip.find_entry [topic_uuid, filename].join('/')
 
-      if entry
-        FileEntry.new(entry.get_input_stream, filename: filename)
+      if file_entry
+        FileEntry.new(file_entry.get_input_stream, filename: filename)
       end
     end
 
     ##
     # Read an entry as string
     def read_entry(filename)
-      entry = zip.find_entry [topic_uuid, filename].join('/')
-      entry.get_input_stream.read
+      file_entry = zip.find_entry [topic_uuid, filename].join('/')
+      file_entry.get_input_stream.read
+    end
+
+    def new_comment(comment_data)
+      bcf_comment = issue.comments.build(comment_data.slice(:uuid))
+
+      call = create_wp_comment_privileged(comment_data)
+
+      new_comment_handler(bcf_comment, call, comment_data[:date])
+    end
+
+    def create_wp_comment_privileged(comment_data)
+      author = get_comment_author(comment_data)
+      if author.id == User.system.id
+        User.system.run_given do
+          create_wp_comment(User.current, comment_data[:comment])
+        end
+      else
+        create_wp_comment(author, comment_data[:comment])
+      end
+    end
+
+    def new_comment_handler(bcf_comment, call, created_at)
+      if call.success?
+        call.result.update_columns(created_at: created_at)
+        bcf_comment.journal = call.result
+      else
+        Rails.logger.error "Failed to create comment for BCF #{issue.uuid}: #{call.errors.full_messages.join('; ')}"
+      end
+    end
+
+    def update_comment(comment_data)
+      if comment_data[:modified_date]
+        bcf_comment = issue.comments.find_by(comment_data.slice(:uuid))
+        if bcf_comment.journal.created_at < comment_data[:modified_date]
+          update_journal_attributes(bcf_comment, comment_data)
+        end
+      end
+    end
+
+    def update_journal_attributes(bcf_comment, comment_data)
+      bcf_comment.journal.update_attributes(notes: comment_data[:comment],
+                                            created_at: comment_data[:modified_date])
+      bcf_comment.journal.save
     end
 
     ##
@@ -195,6 +393,16 @@ module OpenProject::Bcf::BcfXml
     # Keep a hash map of current status ids for faster lookup
     def priorities
       @priorities ||= Hash[IssuePriority.pluck(:name, :id)].merge(default: IssuePriority.default.try(:id))
+    end
+
+    def import_is_outdated(issue)
+      issue.errors.add :base,
+                       :conflict,
+                       message: I18n.t('bcf.bcf_xml.import.work_package_has_newer_changes',
+                                       bcf_uuid: issue.uuid)
+      ServiceResult.new success: false,
+                        errors: issue.errors,
+                        result: issue
     end
   end
 end

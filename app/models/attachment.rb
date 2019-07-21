@@ -31,6 +31,7 @@
 require 'digest/md5'
 
 class Attachment < ActiveRecord::Base
+  ALLOWED_TEXT_TYPES = %w[text/plain].freeze
   ALLOWED_IMAGE_TYPES = %w[image/gif image/jpeg image/png image/tiff image/bmp].freeze
 
   belongs_to :container, polymorphic: true
@@ -59,7 +60,7 @@ class Attachment < ActiveRecord::Base
   # Returns an URL if the attachment is stored in an external (fog) attachment storage
   # or nil otherwise.
   def external_url
-    url = URI.parse file.download_url # returns a path if local
+    url = URI.parse file.download_url(content_disposition: content_disposition) # returns a path if local
 
     url if url.host
   rescue URI::InvalidURIError
@@ -80,7 +81,7 @@ class Attachment < ActiveRecord::Base
   end
 
   def content_disposition
-    inlineable? ? 'inline' : 'attachment'
+    inlineable? ? "inline" : "attachment; filename=#{self[:file]}"
   end
 
   def visible?(user = User.current)
@@ -97,7 +98,11 @@ class Attachment < ActiveRecord::Base
 
   # images are sent inline
   def inlineable?
-    is_image?
+    is_plain_text? || is_image?
+  end
+
+  def is_plain_text?
+    ALLOWED_TEXT_TYPES.include?(content_type)
   end
 
   def is_image?
@@ -175,6 +180,21 @@ class Attachment < ActiveRecord::Base
     content_type || fallback
   end
 
+  def copy(&block)
+    attachment = dup
+    attachment.file = diskfile
+
+    yield attachment if block_given?
+
+    attachment
+  end
+
+  def copy!(&block)
+    attachment = copy &block
+
+    attachment.save!
+  end
+
   def extract_fulltext
     return unless OpenProject::Database.allows_tsv?
     job = ExtractFulltextJob.new(id)
@@ -183,16 +203,26 @@ class Attachment < ActiveRecord::Base
 
   # Extract the fulltext of any attachments where fulltext is still nil.
   # This runs inline and not in a asynchronous worker.
-  def self.extract_fulltext_where_missing
+  def self.extract_fulltext_where_missing(run_now: true)
     return unless OpenProject::Database.allows_tsv?
-    Attachment.where(fulltext: nil).pluck(:id).each do |id|
+
+    Attachment
+      .where(fulltext: nil)
+      .pluck(:id)
+      .each do |id|
       job = ExtractFulltextJob.new(id)
-      job.perform
+
+      if run_now
+        job.perform
+      else
+        Delayed::Job.enqueue job, priority: ::ApplicationJob.priority_number(:low)
+      end
     end
   end
 
   def self.force_extract_fulltext
     return unless OpenProject::Database.allows_tsv?
+
     Attachment.pluck(:id).each do |id|
       job = ExtractFulltextJob.new(id)
       job.perform

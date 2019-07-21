@@ -132,14 +132,7 @@ en:
     single: 'or'
 
   deprecations:
-    old_timeline:
-      replacement: "This timelines module is being replaced by the interactive timeline embedded into the work packages module."
-      removal: "This module is going to be removed with OpenProject 8.0. The configuration for this view will NOT be migrated to the work package view."
-      further_information_before: "Please take a look at"
-      link_name: "how to migrate to the new timeline."
-      further_information_after: ""
-    calendar:
-      removal: "Please note: This module is going to be removed with OpenProject 8.0."
+    time_entries: "This time entries view is superseded by the 'Cost reports' module. This view now only supports exporting time entry information to csv. For interactive filtering, please activate the 'Cost reports' module in the project settings."
 
   global_search:
     overwritten_tabs:
@@ -245,8 +238,6 @@ en:
       form_configuration: "Form configuration"
       projects: "Projects"
       enabled_projects: "Enabled projects"
-      add_group: "Add attribute group"
-      add_table: "Add table of related work packages"
       edit_query: "Edit table"
       query_group_placeholder: "Give the table a name"
       reset: "Reset to defaults"
@@ -435,6 +426,7 @@ en:
         spent_on: "Date"
         type: "Type"
       type:
+        description: "Default text for description"
         attribute_groups: ''
         is_in_roadmap: "Displayed in roadmap by default"
         is_default: "Activated for new projects by default"
@@ -602,6 +594,9 @@ en:
           invalid_url: "is not a valid repository URL or path."
           must_not_be_ssh: "must not be an SSH url."
           no_directory: "is not a directory."
+        role:
+          permissions:
+            dependency_missing: "need to also include '%{dependency}' as '%{permission}' is selected."
         work_package:
           is_not_a_valid_target_for_time_entries: "Work package #%{id} is not a valid target for reassigning the time entries."
           attributes:
@@ -630,6 +625,7 @@ en:
           attributes:
             attribute_groups:
               attribute_unknown: "Invalid work package attribute used."
+              attribute_unknown_name: "Invalid work package attribute used: %{attribute}"
               duplicate_group: "The group name '%{group}' is used more than once. Group names must be unique."
               query_invalid: "The embedded query '%{group}' is invalid: %{details}"
               group_without_name: "Unnamed groups are not allowed."
@@ -653,7 +649,14 @@ en:
               error_not_found: "not found"
         member:
           principal_blank: "Please choose at least one user or group."
-          role_blank: "Please choose at least one role."
+          role_blank: "need to be assigned."
+          attributes:
+            roles:
+              ungrantable: "has an unassignable role."
+            principal:
+              unassignable: "cannot be assigned to a project."
+        version:
+          undeletable_work_packages_attached: "The version cannot be deleted as it has work packages attached to it."
       template:
         body: "Please check the following fields:"
         header:
@@ -834,6 +837,7 @@ en:
   copy_project:
     started: "Started to copy project \"%{source_project_name}\" to \"%{target_project_name}\". You will be informed by mail as soon as \"%{target_project_name}\" is available."
     failed: "Cannot copy project %{source_project_name}"
+    failed_internal: "Copying failed due to an internal error."
     succeeded: "Created project %{target_project_name}"
     errors: "Error"
     project_custom_fields: 'Custom fields on project'
@@ -969,7 +973,7 @@ en:
   description_choose_project: "Projects"
   description_compare_from: "Compare from"
   description_compare_to: "Compare to"
-  description_current_position: "You are here:"
+  description_current_position: "You are here: "
   description_date_from: "Enter start date"
   description_date_range_interval: "Choose range by selecting start and end date"
   description_date_range_list: "Choose range from list"
@@ -1024,9 +1028,9 @@ en:
   error_code: "Error %{code}"
   error_cookie_missing: 'The OpenProject cookie is missing. Please ensure that cookies are enabled, as this application will not properly function without.'
   error_custom_option_not_found: "Option does not exist."
-  error_dependent_work_package: "Error in dependent work package #%{related_id} %{related_subject}: %{error}"
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
+  error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
   error_invalid_group_by: "Can't group by: %{value}"
   error_invalid_query_column: "Invalid query column: %{value}"
@@ -1101,6 +1105,8 @@ en:
   general_text_yes: "yes"
   general_text_No: "No"
   general_text_Yes: "Yes"
+  general_text_true: "true"
+  general_text_false: "false"
 
   gui_validation_error: "1 error"
   gui_validation_error_plural: "%{count} errors"
@@ -1396,6 +1402,7 @@ en:
   label_max_size: "Maximum size"
   label_me: "me"
   label_member_new: "New member"
+  label_member_all_admin: "(All roles due to admin status)"
   label_member_plural: "Members"
   label_view_all_members: "View all members"
   label_menu_item_name: "Name of menu item"
@@ -1424,6 +1431,7 @@ en:
   label_my_queries: "My custom queries"
   label_never: "Never"
   label_new: "New"
+  label_new_features: "New features"
   label_new_statuses_allowed: "New statuses allowed"
   label_news_added: "News added"
   label_news_comment_added: "Comment added to a news"
@@ -1600,6 +1608,7 @@ en:
   label_used_by_types: "Used by types"
   label_used_in_projects: "Used in projects"
   label_user: "User"
+  label_user_and_permission: "Users & Permissions"
   label_user_named: "User %{name}"
   label_user_activity: "%{value}'s activity"
   label_user_anonymous: "Anonymous"
@@ -1612,6 +1621,7 @@ en:
   label_user_new: "New user"
   label_user_plural: "Users"
   label_user_search: "Search for user"
+  label_user_settings: "User settings"
   label_version_new: "New version"
   label_version_plural: "Versions"
   label_version_sharing_descendants: "With subprojects"
@@ -1828,7 +1838,6 @@ en:
   notice_successful_update: "Successful update."
   notice_to_many_principals_to_display: "There are too many results.\nNarrow down the search by typing in the name of the new member (or group)."
   notice_unable_delete_time_entry: "Unable to delete time log entry."
-  notice_unable_delete_version: "Unable to delete version."
   notice_user_missing_authentication_method: User has yet to choose a password or another way to sign in.
   notice_user_invitation_resent: An invitation has been sent to %{email}.
   present_access_key_value: "Your %{key_name} is: %{value}"
@@ -1874,6 +1883,7 @@ en:
   permission_add_project: "Create project"
   permission_add_subprojects: "Create subprojects"
   permission_add_work_package_watchers: "Add watchers"
+  permission_assign_versions: "Assign versions"
   permission_browse_repository: "Read-only access to repository (browse and checkout)"
   permission_change_wiki_parent_page: "Change parent wiki page"
   permission_comment_news: "Comment news"
@@ -2123,13 +2133,13 @@ en:
   setting_display_subprojects_work_packages: "Display subprojects work packages on main projects by default"
   setting_emails_footer: "Emails footer"
   setting_emails_header: "Emails header"
-  setting_email_login: "Use e-mail as login"
+  setting_email_login: "Use email as login"
   setting_enabled_scm: "Enabled SCM"
   setting_feeds_enabled: "Enable Feeds"
   setting_feeds_limit: "Feed content limit"
   setting_file_max_size_displayed: "Max size of text files displayed inline"
   setting_host_name: "Host name"
-  setting_invitation_expiration_days: "Activation E-Mail expires after"
+  setting_invitation_expiration_days: "Activation email expires after"
   setting_work_package_done_ratio: "Calculate the work package done ratio with"
   setting_work_package_done_ratio_field: "Use the work package field"
   setting_work_package_done_ratio_status: "Use the work package status"
@@ -2232,7 +2242,6 @@ en:
   text_form_configuration: >
     You can customize which fields will be displayed in work package forms.
     You can freely group the fields to reflect the needs for your domain.
-  text_form_configuration_drag_to_activate: "Drag fields from here to activate them"
   text_form_configuration_required_attribute: "Attribute is marked required and thus always shown"
   text_caracters_maximum: "%{count} characters maximum."
   text_caracters_minimum: "Must be at least %{count} characters long."
@@ -2520,7 +2529,7 @@ en:
   tooltip:
     setting_email_login: >
       If enabled a user will be unable to chose a login during registration.
-      Instead their given e-mail address will serve as the login.
+      Instead their given email address will serve as the login.
       An administrator may still change the login separately.
 
   queries:
@@ -2594,13 +2603,6 @@ en:
   menu_item: "Menu item"
   menu_item_setting: "Visibility"
 
-  mysql_deprecation:
-    notice: >
-      Future versions of OpenProject will likely drop or reduce support for MySQL and MariaDB databases.
-      Your installation is still running on MySQL and we suggest you migrate your installation to PostgreSQL.
-
-      This process is easy when following our migration guides:
-
   wiki_menu_item_for: "Menu item for wikipage \"%{title}\""
   wiki_menu_item_setting: "Visibility"
   wiki_menu_item_new_main_item_explanation: >
@@ -2623,6 +2625,7 @@ en:
     attributes:
       lock_version: "Lock Version"
     errors:
+      code_400: "Bad request: %{message}"
       code_401: "You need to be authenticated to access this resource."
       code_401_wrong_credentials: "You did not provide the correct credentials."
       code_403: "You are not authorized to access this resource."
@@ -2644,6 +2647,7 @@ en:
       multipart_body_error: "The request body did not contain the expected multipart parts."
       multiple_errors: "Multiple field constraints have been violated."
       unable_to_create_attachment: "The attachment could not be created"
+      unable_to_create_attachment_permissions: "The attachment could not be saved due to lacking file system permissions"
       render:
         context_not_parsable: "The context provided is not a link to a resource."
         unsupported_context: "The resource given is not supported as context."

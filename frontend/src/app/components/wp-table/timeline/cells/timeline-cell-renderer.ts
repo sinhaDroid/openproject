@@ -3,7 +3,8 @@ import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-r
 import {
   calculatePositionValueForDayCount,
   calculatePositionValueForDayCountingPx,
-  RenderInfo, timelineBackgroundElementClass,
+  RenderInfo,
+  timelineBackgroundElementClass,
   timelineElementCssClass,
   timelineMarkerSelectionStartClass
 } from '../wp-timeline';
@@ -19,20 +20,16 @@ import {
   classNameShowOnHover,
   WorkPackageCellLabels
 } from './wp-timeline-cell';
-import {
-  classNameBarLabel,
-  classNameLeftHandle,
-  classNameRightHandle
-} from './wp-timeline-cell-mouse-handler';
+import {classNameBarLabel, classNameLeftHandle, classNameRightHandle} from './wp-timeline-cell-mouse-handler';
 import {WorkPackageTimelineTableController} from '../container/wp-timeline-container.directive';
-import {hasChildrenInTable} from '../../../wp-fast-table/helpers/wp-table-hierarchy-helpers';
 import {WorkPackageChangeset} from '../../../wp-edit-form/work-package-changeset';
 import {WorkPackageTableTimelineService} from '../../../wp-fast-table/state/wp-table-timeline.service';
 import {DisplayFieldRenderer} from '../../../wp-edit-form/display-field-renderer';
-import Moment = moment.Moment;
 import {Injector} from '@angular/core';
 import {TimezoneService} from 'core-components/datetime/timezone.service';
 import {Highlighting} from "core-components/wp-fast-table/builders/highlighting/highlighting.functions";
+import {HierarchyRenderPass} from "core-components/wp-fast-table/builders/modes/hierarchy/hierarchy-render-pass";
+import Moment = moment.Moment;
 
 export interface CellDateMovement {
   // Target values to move work package to
@@ -79,12 +76,13 @@ export class TimelineCellRenderer {
 
     const placeholder = document.createElement('div');
     placeholder.style.pointerEvents = 'none';
-    placeholder.style.backgroundColor = '#DDDDDD';
     placeholder.style.position = 'absolute';
     placeholder.style.height = '1em';
     placeholder.style.width = '30px';
     placeholder.style.zIndex = '9999';
     placeholder.style.left = (days * renderInfo.viewParams.pixelPerDay) + 'px';
+
+    this.applyTypeColor(renderInfo, placeholder);
 
     return placeholder;
   }
@@ -116,6 +114,8 @@ export class TimelineCellRenderer {
     const initialStartDate = changeset.workPackage.startDate;
     const initialDueDate = changeset.workPackage.dueDate;
 
+    const now = moment().format('YYYY-MM-DD');
+
     const startDate = moment(changeset.value('startDate'));
     const dueDate = moment(changeset.value('dueDate'));
 
@@ -124,7 +124,7 @@ export class TimelineCellRenderer {
     if (direction === 'left') {
       dates.startDate = moment(initialStartDate || initialDueDate).add(delta, 'days');
     } else if (direction === 'right') {
-      dates.dueDate = moment(initialDueDate || initialStartDate).add(delta, 'days');
+      dates.dueDate = moment(initialDueDate || now).add(delta, 'days');
     } else if (direction === 'both') {
       if (initialStartDate) {
         dates.startDate = moment(initialStartDate).add(delta, 'days');
@@ -176,9 +176,6 @@ export class TimelineCellRenderer {
       // only right
       direction = 'right';
       this.workPackageTimeline.forceCursor('col-resize');
-      if (changeset.value('dueDate') === null) {
-        changeset.setValue('dueDate', changeset.value('startDate'));
-      }
     } else {
       // both
       direction = 'both';
@@ -252,6 +249,7 @@ export class TimelineCellRenderer {
 
     this.checkForActiveSelectionMode(renderInfo, bar);
     this.checkForSpecialDisplaySituations(renderInfo, bar);
+    this.applyTypeColor(renderInfo, bar);
 
     return true;
   }
@@ -327,7 +325,7 @@ export class TimelineCellRenderer {
     // create center label
     const labelCenter = document.createElement('div');
     labelCenter.classList.add(classNameBarLabel);
-    this.applyTypeColor(renderInfo.workPackage, labelCenter);
+    this.applyTypeColor(renderInfo, labelCenter);
     element.appendChild(labelCenter);
 
     // create left label
@@ -366,15 +364,24 @@ export class TimelineCellRenderer {
     return labels;
   }
 
-  protected applyTypeColor(wp:WorkPackageResource, bg:HTMLElement):void {
+  protected applyTypeColor(renderInfo:RenderInfo, bg:HTMLElement):void {
+    let wp = renderInfo.workPackage;
     let type = wp.type;
+    let selectionMode = renderInfo.viewParams.activeSelectionMode;
 
-    if (!type) {
+    if (!type && !selectionMode) {
       bg.style.backgroundColor = this.fallbackColor;
+    } else {
+      bg.style.backgroundColor = '';
     }
 
+    // Don't apply the class in selection mode or for parents (clamps)
     const id = type.id;
-    bg.classList.add(Highlighting.backgroundClass('type', id!));
+    if (selectionMode || this.isParentWithVisibleChildren(wp)) {
+      bg.classList.remove(Highlighting.backgroundClass('type', id!));
+    } else {
+      bg.classList.add(Highlighting.backgroundClass('type', id!));
+    }
   }
 
   protected assignDate(changeset:WorkPackageChangeset, attributeName:string, value:moment.Moment) {
@@ -391,24 +398,22 @@ export class TimelineCellRenderer {
    */
   checkForSpecialDisplaySituations(renderInfo:RenderInfo, bar:HTMLElement) {
     const wp = renderInfo.workPackage;
+    let selectionMode = renderInfo.viewParams.activeSelectionMode;
 
-    // Cannot eddit the work package if it has children
-    if (!wp.isLeaf) {
+    // Cannot edit the work package if it has children
+    if (!wp.isLeaf && !selectionMode) {
       bar.classList.add('-readonly');
+    } else {
+      bar.classList.remove('-readonly');
     }
 
     // Display the parent as clamp-style when it has children in the table
-    if (this.workPackageTimeline.inHierarchyMode &&
-      hasChildrenInTable(wp, this.workPackageTimeline.workPackageTable)) {
-      // this.applyTypeColor(wp, bar);
+    if (this.isParentWithVisibleChildren(wp)) {
       bar.classList.add('-clamp-style');
       bar.style.borderStyle = 'solid';
       bar.style.borderWidth = '2px';
       bar.style.borderBottom = 'none';
       bar.style.background = 'none';
-    } else {
-      // Apply the background color
-      this.applyTypeColor(renderInfo.workPackage, bar);
     }
   }
 
@@ -464,5 +469,14 @@ export class TimelineCellRenderer {
     } else if (label) {
       label.classList.remove('not-empty');
     }
+  }
+
+  protected isParentWithVisibleChildren(wp:WorkPackageResource):boolean {
+    if (!this.workPackageTimeline.inHierarchyMode) {
+      return false;
+    }
+
+    const renderPass = this.workPackageTimeline.workPackageTable.lastRenderPass! as HierarchyRenderPass;
+    return !!renderPass.parentsWithVisibleChildren[wp.id!];
   }
 }

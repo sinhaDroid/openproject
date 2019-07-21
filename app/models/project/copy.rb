@@ -43,6 +43,8 @@ module Project::Copy
     def copy_attributes(project)
       super
       with_model(project) do |project|
+        # Clear enabled modules
+        self.enabled_modules = []
         self.enabled_module_names = project.enabled_module_names
         self.types = project.types
         self.work_package_custom_fields = project.work_package_custom_fields
@@ -165,7 +167,7 @@ module Project::Copy
                        .new(user: User.current,
                             work_package: issue,
                             contract_class: WorkPackages::CopyProjectContract)
-                       .call(attributes: overrides)
+                       .call(overrides)
 
         if service_call.success?
           new_work_package = service_call.result

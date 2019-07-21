@@ -67,7 +67,15 @@ module API
         end
 
         def json_cache_key
-          self.class.name.to_s.split('::') + [
+          # In case of dynamically created classes like
+          # custom field injected subclasses.
+          classname = if self.class.name.nil?
+                        self.class.superclass.name
+                      else
+                        self.class.name
+                      end
+
+          classname.to_s.split('::') + [
             'json',
             I18n.locale,
             json_key_representer_parts
@@ -152,7 +160,7 @@ module API
         def delete_from_hash(hash, path, key)
           pathed_hash = path ? hash[path] : hash
 
-          pathed_hash.delete(key.to_s) if pathed_hash
+          pathed_hash&.delete(key.to_s)
         end
 
         def representable_map(*)
@@ -178,19 +186,34 @@ module API
         end
 
         def json_key_representer_parts
-          cacheable = [represented]
+          cacheable = json_key_part_represented
+          cacheable << json_key_custom_fields
+          cacheable << json_key_parts_of_represented
+          cacheable << json_key_dependencies
 
-          self.class.cached_representer_configuration[:key_parts].each do |association|
-            cacheable << represented.send(association)
+          OpenProject::Cache::CacheKey.expand(cacheable.flatten.compact)
+        end
+
+        def json_key_part_represented
+          [represented]
+        end
+
+        def json_key_parts_of_represented
+          self.class.cached_representer_configuration[:key_parts].map do |association|
+            represented.send(association)
           end
+        end
 
-          # Concat additional dependencies that may either be additional strings
-          # or cachable objects
-          if callable_dependencies = self.class.cached_representer_configuration[:dependencies]
-            cacheable.concat callable_dependencies.call
-          end
+        def json_key_custom_fields
+          represented.available_custom_fields if represented.respond_to?(:available_custom_fields)
+        end
 
-          OpenProject::Cache::CacheKey.expand(cacheable)
+        def json_key_dependencies
+          callable_dependencies = self.class.cached_representer_configuration[:dependencies]
+
+          return unless callable_dependencies
+
+          instance_exec(&callable_dependencies)
         end
 
         def no_caching?

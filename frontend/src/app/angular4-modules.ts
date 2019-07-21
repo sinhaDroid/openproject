@@ -83,6 +83,14 @@ import {DeviceService} from "core-app/modules/common/browser/device.service";
 import {MainMenuToggleService} from "core-components/main-menu/main-menu-toggle.service";
 import {MainMenuToggleComponent} from "core-components/main-menu/main-menu-toggle.component";
 import {MainMenuNavigationService} from "core-components/main-menu/main-menu-navigation.service";
+import {StatusCacheService} from "core-components/statuses/status-cache.service";
+import {VersionCacheService} from "core-components/versions/version-cache.service";
+import {FormsCacheService} from "core-components/forms/forms-cache.service";
+import {OpenprojectAdminModule} from "core-app/modules/admin/openproject-admin.module";
+import {OpenprojectDashboardsModule} from "core-app/modules/dashboards/openproject-dashboards.module";
+import {OpenprojectWorkPackageGraphsModule} from "core-app/modules/work-package-graphs/openproject-work-package-graphs.module";
+import {WpPreviewModal} from "core-components/modals/preview-modal/wp-preview-modal/wp-preview.modal";
+import {PreviewTriggerService} from "core-app/globals/global-listeners/preview-trigger.service";
 
 @NgModule({
   imports: [
@@ -108,12 +116,21 @@ import {MainMenuNavigationService} from "core-components/main-menu/main-menu-nav
     OpenprojectWorkPackagesModule,
     OpenprojectWorkPackageRoutesModule,
 
+    // Work packages in graph representation
+    OpenprojectWorkPackageGraphsModule,
+
     // Calendar module
     OpenprojectCalendarModule,
     FullCalendarModule,
 
+    // Dashboards
+    OpenprojectDashboardsModule,
+
     // Global Search
     OpenprojectGlobalSearchModule,
+
+    // Admin module
+    OpenprojectAdminModule,
 
     // Plugin hooks and modules
     OpenprojectPluginsModule,
@@ -133,7 +150,10 @@ import {MainMenuNavigationService} from "core-components/main-menu/main-menu-nav
     OpTitleService,
     UrlParamsHelperService,
     ProjectCacheService,
+    FormsCacheService,
     UserCacheService,
+    StatusCacheService,
+    VersionCacheService,
     CurrentUserService,
     {provide: States, useValue: new States()},
     PaginationService,
@@ -154,6 +174,7 @@ import {MainMenuNavigationService} from "core-components/main-menu/main-menu-nav
 
     // Augmenting Rails
     ModalWrapperAugmentService,
+    PreviewTriggerService,
   ],
   declarations: [
     OpContextMenuTrigger,
@@ -162,6 +183,7 @@ import {MainMenuNavigationService} from "core-components/main-menu/main-menu-nav
     ConfirmDialogModal,
     DynamicContentModal,
     PasswordConfirmationModal,
+    WpPreviewModal,
 
     // Main menu
     MainMenuResizerComponent,
@@ -184,6 +206,7 @@ import {MainMenuNavigationService} from "core-components/main-menu/main-menu-nav
     ConfirmDialogModal,
     PasswordConfirmationModal,
     AttributeHelpTextModal,
+    WpPreviewModal,
 
     // Main menu
     MainMenuResizerComponent,
@@ -215,6 +238,7 @@ export function initializeServices(injector:Injector) {
     const ExternalQueryConfiguration = injector.get(ExternalQueryConfigurationService);
     const ExternalRelationQueryConfiguration = injector.get(ExternalRelationQueryConfigurationService);
     const ModalWrapper = injector.get(ModalWrapperAugmentService);
+    const PreviewTrigger = injector.get(PreviewTriggerService);
     const EditorMacros = injector.get(EditorMacrosService);
     const mainMenuNavigationService = injector.get(MainMenuNavigationService);
 
@@ -222,6 +246,8 @@ export function initializeServices(injector:Injector) {
 
     // Setup modal wrapping
     ModalWrapper.setupListener();
+
+    PreviewTrigger.setupListener();
 
     // Setup query configuration listener
     ExternalQueryConfiguration.setupListener();

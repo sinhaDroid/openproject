@@ -29,21 +29,20 @@
 import {CollectionResource} from 'core-app/modules/hal/resources/collection-resource';
 import {HalResource} from 'core-app/modules/hal/resources/hal-resource';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {EditFieldComponent} from "core-app/modules/fields/edit/edit-field.component";
 import {ValueOption} from "core-app/modules/fields/edit/field-types/select-edit-field.component";
 import {NgSelectComponent} from "@ng-select/ng-select";
-import {ViewChild} from "@angular/core";
 import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
 
 @Component({
   templateUrl: './multi-select-edit-field.component.html'
 })
 export class MultiSelectEditFieldComponent extends EditFieldComponent implements OnInit {
-  @ViewChild(NgSelectComponent) public ngSelectComponent:NgSelectComponent;
+  @ViewChild(NgSelectComponent, { static: true }) public ngSelectComponent:NgSelectComponent;
 
   readonly I18n:I18nService = this.injector.get(I18nService);
-  public options:any[];
+  public options:any[] = [];
   public valueOptions:ValueOption[];
   public text = {
     requiredPlaceholder: this.I18n.t('js.placeholders.selection'),
@@ -59,17 +58,24 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
   private nullOption:ValueOption;
   private _selectedOption:ValueOption[];
 
+  /** Since we need to wait for values to be loaded, remember if the user activated this field*/
+  private requestFocus = false;
+
   ngOnInit() {
     this.nullOption = { name: this.text.placeholder, $href: null };
 
-    const loadingPromise = this.loadValues();
     this.handler
       .$onUserActivate
       .pipe(
         untilComponentDestroyed(this),
       )
       .subscribe(() => {
-        loadingPromise.then(() => this.openAutocompleteSelectField())
+        this.requestFocus = this.options.length === 0;
+
+        // If we already have all values loaded, open now.
+        if (!this.requestFocus) {
+          this.openAutocompleteSelectField();
+        }
       });
 
     super.ngOnInit();
@@ -125,6 +131,12 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     jQuery(this.hiddenOverflowContainer).removeClass('-hidden-overflow');
   }
 
+  public repositionDropdown() {
+    if (this.ngSelectComponent && this.ngSelectComponent.dropdownPanel) {
+      setTimeout(() => this.ngSelectComponent.dropdownPanel.adjustPosition(), 0);
+    }
+  }
+
   private openAutocompleteSelectField() {
     // The timeout takes care that the opening is added to the end of the current call stack.
     // Thus we can be sure that the autocompleter is rendered and ready to be opened.
@@ -153,12 +165,22 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
       });
     }
 
-    this.options = availableValues;
+    this.options = availableValues || [];
     this.valueOptions = this.options.map(el => {
       return { name: el.name, $href: el.$href };
     });
     this._selectedOption = this.buildSelectedOption();
     this.checkCurrentValueValidity();
+
+    if (this.options.length > 0 && this.requestFocus) {
+      this.openAutocompleteSelectField();
+      this.requestFocus = false;
+    }
+  }
+
+  protected initialize() {
+    super.initialize();
+    this.loadValues();
   }
 
   private loadValues() {

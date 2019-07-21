@@ -34,12 +34,12 @@ module API
     module Categories
       class CategoriesByProjectAPI < ::API::OpenProjectAPI
         resources :categories do
-          before do
+          after_validation do
             @categories = @project.categories
           end
 
           get do
-            self_link = api_v3_paths.categories(@project.identifier)
+            self_link = api_v3_paths.categories_by_project(@project.identifier)
 
             CategoryCollectionRepresenter.new(@categories, self_link, current_user: current_user)
           end

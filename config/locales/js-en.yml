@@ -47,24 +47,6 @@ en:
     close_filter_title: "Close filter"
     close_form_title: "Close form"
 
-    boards:
-      upsale:
-        boards: 'Need to freely structure your work in a board view?'
-        check_out_link: 'Check out the Enterprise Edition.'
-      lists:
-        delete: 'Delete list'
-
-    card:
-      add_new: 'Add new card'
-      highlighting:
-        inline: 'Highlight inline:'
-        entire_card_by: 'Entire card by'
-      remove_from_list: 'Remove card from list'
-
-    clipboard:
-      browser_error: "Your browser doesn't support copying to clipboard. Please copy the selected text manually."
-      copied_successful: "Sucessfully copied to clipboard!"
-
     button_add_watcher: "Add watcher"
     button_back: "Back"
     button_back_to_list_view: "Back to list view"
@@ -101,10 +83,37 @@ en:
 
     calendar:
       title: 'Calendar'
-      too_many: 'There are more work packages (%{count}) than can be displayed by the calendar (%{max}). Add filters to focus on the relevant ones.'
+      too_many: 'There are %{count} work packages in total, but only %{max} can be shown.'
+
+    card:
+      add_new: 'Add new card'
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: 'Entire card by'
+      remove_from_list: 'Remove card from list'
+
+    clipboard:
+      browser_error: "Your browser doesn't support copying to clipboard. Please copy the selected text manually."
+      copied_successful: "Sucessfully copied to clipboard!"
+
+    chart:
+      type: 'Chart type'
+      axis_criteria: 'Axis criteria'
+      modal_title: 'Work package graph configuration'
+      types:
+        line: 'Line'
+        horizontal_bar: 'Horizontal bar'
+        bar: 'Bar'
+        pie: 'Pie'
+        doughnut: 'Doughnut'
+        radar: 'Radar'
+        polar_area: 'Polar area'
+      tabs:
+        graph_settings: 'General'
+        dataset: 'Dataset %{number}'
 
     description_available_columns: "Available Columns"
-    description_current_position: "You are here:"
+    description_current_position: "You are here: "
     description_select_work_package: "Select work package #%{id}"
     description_selected_columns: "Selected Columns"
     description_subwork_package: "Child of work package #%{id}"
@@ -156,6 +165,17 @@ en:
         embedded_calendar:
           text: '[Placeholder] Embedded calendar'
 
+    admin:
+      type_form:
+        custom_field: 'Custom field'
+        inactive: 'Inactive'
+        drag_to_activate: "Drag fields from here to activate them"
+        add_group: "Add attribute group"
+        add_table: "Add table of related work packages"
+        edit_query: 'Edit query'
+        new_group: 'New group'
+        reset_to_defaults: 'Reset to defaults'
+
     custom_actions:
       date:
         specific: 'on'
@@ -191,6 +211,7 @@ en:
     grid:
       add_modal:
         choose_widget: 'Choose widget'
+      remove: 'Remove widget'
       widgets:
         documents:
           title: 'Documents'
@@ -199,6 +220,8 @@ en:
           title: 'News'
           at: 'at'
           no_results: 'Nothing new to report.'
+        project_description:
+          title: 'Project description'
         time_entries_current_user:
           title: 'Spent time (last 7 days)'
           no_results: 'No time entries for the last 7 days.'
@@ -211,10 +234,25 @@ en:
         work_packages_watched:
           title: 'Work packages watched by me'
         work_packages_table:
-          title: 'Work packages'
+          title: 'Work packages table'
+        work_packages_graph:
+          title: 'Work packages graph'
         work_packages_calendar:
           title: 'Calendar'
+        work_packages_overview:
+          title: 'Work packages overview'
 
+    homescreen:
+      blocks:
+        new_features:
+          text_new_features: "Read about new features and product updates."
+          current_new_feature_html: "OpenProject contains a new <b>Boards view</b> for Agile project management. </br>
+                                     To activate this new feature for your existing projects, please do the following steps:
+                                      <ul><li>Activate the module Boards within existing projects' settings.</li>
+                                      <li>Configure your Boards in a project.</li>
+                                      <li>Verify roles and permissions</li></ul>"
+          image_alt_text: "Board teaser image"
+          learn_about: "Learn more about Agile Boards"
     label_activate: "Activate"
     label_activity_no: "Activity entry number %{activityNo}"
     label_activity_with_comment_no: "Activity entry number %{activityNo}. Has a user comment."
@@ -239,6 +277,7 @@ en:
     label_board_locked: "Locked"
     label_board_plural: "Boards"
     label_board_sticky: "Sticky"
+    label_create: "Create"
     label_create_work_package: "Create new work package"
     label_created_by: "Created by"
     label_date: "Date"
@@ -267,6 +306,7 @@ en:
     label_filename: "File"
     label_filesize: "Size"
     label_greater_or_equal: ">="
+    label_group: 'Group'
     label_group_by: "Group by"
     label_hide_attributes: "Show less"
     label_hide_column: "Hide column"
@@ -364,6 +404,7 @@ en:
     label_wait: "Please wait for configuration..."
     label_upload_counter: "%{done} of %{count} files finished"
     label_validation_error: "The work package could not be saved due to the following errors:"
+    label_view_has_changed: "This view has unsaved changes. Click to save them."
 
     help_texts:
       show_modal: 'Show attribute help text entry'
@@ -376,7 +417,7 @@ en:
       steps:
         help_menu: 'In the <b>Help</b> menu you will find a user guide and additional help resources. <br> Enjoy your work with OpenProject!'
         members: 'Invite new <b>Members</b> to join your project.'
-        project_selection: 'Please select one of the projects with useful demo data to get started. <br> The <b>Demo project</b> suits best for classical project management, while the <b>Scrum project</b> is better for Agile project management.'
+        project_selection: 'Please click on one of the projects with useful demo data to get started. <br> The <b>Demo project</b> suits best for classical project management, while the <b>Scrum project</b> is better for Agile project management.'
         sidebar_arrow: "With the arrow you can navigate back to the project's <b>Main menu</b>."
         welcome: 'Take a three minutes introduction tour to learn the most <b>important features</b>. <br> We recommend completing the steps until the end. You can restart the tour any time.'
         wiki: 'Within the <b>Wiki</b> you can document and share knowledge together with your team.'
@@ -389,7 +430,7 @@ en:
           overview: 'Manage your work within an intuitive <b>Boards</b> view.'
           lists: 'You can create multiple lists (columns) within one Board view, e.g. to create a KANBAN board.'
           add: 'Click the + will <b>add a new card</b> to the list within a Board.'
-          drag: 'Drag & Drop your cards within a list to re-order, or to drag to another list. A double click will open the details view.'
+          drag: 'Drag & Drop your cards within a list to re-order, or to another list. A double click will open the details view.'
         wp:
           toggler: "Now let's have a look at the <b>Work package</b> section, which gives you a more detailed view of your work."
           list: 'This is the <b>Work package</b> list with the important work within your project, such as tasks, features, milestones, bugs, and more. <br> You can create or edit a work package directly within this list. To see its details you can double click on a row.'
@@ -417,7 +458,9 @@ en:
       relation_description: 'Click to add description for this relation'
 
     project:
-      required_outside_context: 'You are not within a project context. Please choose the project context first in order to select type and status'
+      required_outside_context: >
+        Please choose a project to create the work package in to see all attributes.
+        You can only select projects which have the type above activated.
       context: 'Project context'
       work_package_belongs_to: 'This work package belongs to project %{projectname}.'
       click_to_switch_context: 'Open this work package in that project.'
@@ -512,8 +555,8 @@ en:
       abort: "Abort"
 
     relations_autocomplete:
-      placeholder: "Enter the related work package id"
-      parent_placeholder: "Choose new parent, press enter to unset, escape to cancel."
+      placeholder: "Type to search"
+      parent_placeholder: "Choose new parent or press escape to cancel."
 
     repositories:
       select_tag: 'Select tag'
@@ -687,6 +730,9 @@ en:
       no_results:
         title: No work packages to display.
         description: Either none have been created or all work packages are filtered out.
+      limited_results: >
+        There are %{total} total work packages, but only %{count} can be shown in manual sorting mode.
+        Please reduce the results by filtering.
       property_groups:
         details: "Details"
         people: "People"
@@ -779,6 +825,11 @@ en:
           status: 'Status'
           priority: 'Priority'
           type: 'Type'
+        sorting_mode:
+          description: 'Chose the mode to sort your Work packages:'
+          automatic: 'Automatic'
+          manually: 'Manually'
+          warning: 'You will lose your previous sorting when activating the automatic sorting mode.'
         columns_help_text: "Use the input above to add or remove columns to your table view. You can drag and drop the columns to reorder them."
         upsale:
           attribute_highlighting: 'Need certain work packages to stand out from the mass?'

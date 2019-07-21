@@ -26,14 +26,14 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-require 'features/support/components/ui_autocomplete'
+require 'support/components/ng_select_autocomplete_helpers'
 
 module Components
   module WorkPackages
     class Relations
       include Capybara::DSL
       include RSpec::Matchers
-      include ::Components::UIAutocompleteHelpers
+      include ::Components::NgSelectAutocompleteHelpers
 
       attr_reader :work_package
 
@@ -98,7 +98,7 @@ module Components
         # Enter the query and select the child
         autocomplete = container.find(".wp-relations--autocomplete")
         select_autocomplete autocomplete,
-                            results_selector: '.wp-relations-autocomplete--results',
+                            results_selector: '.ng-dropdown-panel-items',
                             query: to.subject,
                             select_text: to.subject
 
@@ -139,7 +139,7 @@ module Components
         autocomplete = find(".wp-relations--autocomplete")
         select_autocomplete autocomplete,
                             query: query,
-                            results_selector: '.wp-relations-autocomplete--results',
+                            results_selector: '.ng-dropdown-panel-items',
                             select_text: work_package.id
       end
 
@@ -154,13 +154,7 @@ module Components
       end
 
       def remove_parent
-        # Open the parent edit
-        find('.wp-relation--parent-change').click
-
-        # Submit empty autocomplete to remove
-        autocomplete = find(".wp-relations--autocomplete")
-        autocomplete.set ''
-        autocomplete.send_keys :enter
+        find('.wp-relation--parent-remove').click
       end
 
       def inline_create_child(subject_text)
@@ -174,25 +168,23 @@ module Components
 
       def openChildrenAutocompleter
         retry_block do
+          next if page.has_selector?('.wp-relations--children .ng-input input')
           find('.wp-inline-create--reference-link', text: I18n.t('js.relation_buttons.add_existing_child')).click
 
           # Security check to be sure that the autocompleter has finished loading
-          page.find '.wp-relations-autocomplete--results'
+          page.find '.wp-relations--children .ng-input input'
         end
       end
 
       def add_existing_child(work_package)
-        # Locate the create row container
-        container = find('.wp-relations--add-form')
-
         # Enter the query and select the child
-        autocomplete = container.find(".wp-relations--autocomplete")
+        autocomplete = page.find(".wp-relations--add-form .wp-relations--autocomplete")
         select_autocomplete autocomplete,
                             query: work_package.id,
-                            results_selector: '.wp-relations-autocomplete--results',
+                            results_selector: '.ng-dropdown-panel-items',
                             select_text: work_package.subject
 
-        container.find('.wp-create-relation--save').click
+        page.find('.wp-relations--add-form .wp-create-relation--save').click
       end
 
       def expect_child(work_package)

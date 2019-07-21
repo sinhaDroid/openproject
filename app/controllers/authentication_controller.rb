@@ -30,6 +30,8 @@
 class AuthenticationController < ApplicationController
   before_action :disable_api
   before_action :require_login
+  layout 'admin'
+  menu_item :authentication_settings
 
   accept_key_auth :index
 
@@ -37,5 +39,28 @@ class AuthenticationController < ApplicationController
     respond_to do |format|
       format.html
     end
+  end
+
+  def edit
+    if params[:settings]
+      Settings::UpdateService
+        .new(user: current_user)
+        .call(settings: permitted_params.settings.to_h)
+
+      flash[:notice] = l(:notice_successful_update)
+      redirect_to action: 'authentication_settings'
+    end
+  end
+
+  def authentication_settings
+    render 'authentication_settings'
+  end
+
+  def default_breadcrumb
+    t(:label_authentication)
+  end
+
+  def show_local_breadcrumb
+    true
   end
 end

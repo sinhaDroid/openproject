@@ -55,7 +55,7 @@
 
   // Avoid that the select field gets too small
   .wp-inline-edit--field.ng-select
-    min-width: 110px
+    min-width: 140px
 
 // Styles for inline editable attributes
 .work-package-table--container td.-editable
@@ -125,40 +125,28 @@ html:not(.-browser-mobile)
 
 .wp-table--cell-container
   @extend .ellipsis
-  display: block
-  // Because of the display: block the elements now
-  // take up the whole of the cell. This would block
-  // the user from using click (to select) or double-click (to open full screen)
-  // on the cell. Hence we disable events on this element but have to reenable them
-  // for the inplace-edit fields.
-  // The ID field is an exception because there the link needs to capture the pointer-events not the span.
-  // Otherwise there would be a small area where nothing happens on click.
-  pointer-events: none
+  .wp-table--cell-td.-editing &
+    display: block
 
   .inplace-edit
     display: initial
-    pointer-events: all
+
 
   &.id .inplace-edit
-    pointer-events: none
-    a
-      pointer-events: all
+//  pointer-events: none
+
+  a
+    pointer-events: all
 
 // Some padding for the inner cells of the display fields
 .wp-table--cell-span
   padding: 2px
 
-// On edge, pointer-events only work on
-// block or inline-block elements
 body.-browser-edge
-  .wp-table--cell-span
-    display: inline-block !important
-
   // Ensure height is set in table
   .work-package-table .wp-table--cell-span
     height: 22px !important
     line-height: 22px !important
-
 
 .inplace-editing--container
   display: inline-block
@@ -167,8 +155,16 @@ body.-browser-edge
   overflow: visible
   width: 100%
 
-
 // Special width rules for more or less fixed with fields
 .wp-table--cell-td.startDate,
 .wp-table--cell-td.dueDate
   width: 160px
+
+.wp-table--cell-td img.thumbnail
+  height: 40px
+
+.work-package--limited-results
+  td
+    height: 40px
+    text-align: center !important
+

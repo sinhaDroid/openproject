@@ -70,6 +70,7 @@ module API
 
       def self.add_filter(property, filter)
         return if property[:render_filter].include?(filter)
+
         property.merge!(render_filter: filter)
       end
 
@@ -92,7 +93,7 @@ module API
 
           if contract
             contract
-              .new(represented, current_user: current_user)
+              .new(represented, current_user)
               .writable_attributes
               .map { |name| ::API::Utilities::PropertyNameConverter.from_ar_name(name) }
           else

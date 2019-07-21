@@ -42,7 +42,7 @@ class WorkPackages::CopyService
     self.contract_class = contract_class
   end
 
-  def call(attributes: {}, send_notifications: true)
+  def call(send_notifications: true, **attributes)
     in_context(send_notifications) do
       copy(attributes, send_notifications)
     end
@@ -68,16 +68,14 @@ class WorkPackages::CopyService
     WorkPackages::CreateService
       .new(user: user,
            contract_class: contract_class)
-      .call(attributes: attributes,
-            send_notifications: send_notifications)
+      .call(attributes.merge(send_notifications: send_notifications).symbolize_keys)
   end
 
   def copied_attributes(wp, override)
     wp
       .attributes
       .slice(*writable_work_package_attributes(wp))
-      .merge('author_id' => user.id,
-             'parent_id' => wp.parent_id,
+      .merge('parent_id' => wp.parent_id,
              'custom_field_values' => wp.custom_value_attributes)
       .merge(override)
   end

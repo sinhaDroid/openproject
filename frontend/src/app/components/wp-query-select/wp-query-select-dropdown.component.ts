@@ -29,7 +29,15 @@
 import {CollectionResource} from 'core-app/modules/hal/resources/collection-resource';
 import {States} from '../states.service';
 import {StateService, TransitionService} from '@uirouter/core';
-import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from "@angular/core";
 import {QueryDmService} from 'core-app/modules/hal/dm-services/query-dm.service';
 import {LoadingIndicatorService} from "core-app/modules/common/loading-indicator/loading-indicator.service";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
@@ -40,7 +48,7 @@ import {DynamicBootstrapper} from "core-app/globals/dynamic-bootstrapper";
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {LinkHandling} from "core-app/modules/common/link-handling/link-handling";
 import {CurrentProjectService} from "core-components/projects/current-project.service";
-import {keyCodes} from "../../../../legacy/app/components/keyCodes.enum";
+import {keyCodes} from 'core-app/modules/common/keyCodes.enum';
 import {MainMenuToggleService} from "core-components/main-menu/main-menu-toggle.service";
 import {MainMenuNavigationService} from "core-components/main-menu/main-menu-navigation.service";
 
@@ -70,11 +78,12 @@ interface IQueryAutocompleteJQuery extends JQuery {
 
 @Component({
   selector: 'wp-query-select',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './wp-query-select.template.html',
 })
 export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestroy {
-  @ViewChild('wpQueryMenuSearchInput') _wpQueryMenuSearchInput:ElementRef;
-  @ViewChild('queryResultsContainer') _queryResultsContainerElement:ElementRef;
+  @ViewChild('wpQueryMenuSearchInput', { static: true }) _wpQueryMenuSearchInput:ElementRef;
+  @ViewChild('queryResultsContainer', { static: true }) _queryResultsContainerElement:ElementRef;
 
   public loading = false;
   public noResults = false;
@@ -116,7 +125,8 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
               readonly pathHelper:PathHelperService,
               readonly wpStaticQueries:WorkPackageStaticQueriesService,
               readonly mainMenuService:MainMenuNavigationService,
-              readonly toggleService:MainMenuToggleService) {
+              readonly toggleService:MainMenuToggleService,
+              readonly cdRef:ChangeDetectorRef) {
   }
 
   public ngOnInit() {
@@ -131,6 +141,7 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
 
     // Register click handler on results
     this.addClickHandler();
+    this.cdRef.detach();
   }
 
   ngOnDestroy() {
@@ -215,8 +226,7 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
 
   private loadQueries() {
     return this.loadingPromise = this.QueryDm
-      .all(this.CurrentProject.identifier)
-      .toPromise()
+      .listNonHidden(this.CurrentProject.identifier)
       .then(collection => {
 
       // Update the complete collection
@@ -240,8 +250,14 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
   private set loadingPromise(promise:Promise<any>) {
     this.loading = true;
     promise
-      .then(() => this.loading = false)
-      .catch(() => this.loading = false);
+      .then(() => {
+        this.loading = false;
+        this.cdRef.detectChanges();
+      })
+      .catch(() => {
+        this.loading = false;
+        this.cdRef.detectChanges();
+      });
   }
 
   private setupAutoCompletion(input:IQueryAutocompleteJQuery) {
@@ -419,9 +435,7 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
     const currentId = _.toString(this.$state.params.query_id);
     let opts = {reload: false};
 
-    const isStaticItem = !!item.identifier;
     const isSameItem = params.query_id && params.query_id === currentId.toString();
-
 
     // Ensure we're reloading the query
     if (isSameItem) {

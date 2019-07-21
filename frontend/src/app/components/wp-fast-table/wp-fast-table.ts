@@ -16,6 +16,7 @@ import {WorkPackageTableEditingContext} from './wp-table-editing';
 
 import {WorkPackageTableRow} from './wp-table.interfaces';
 import {WorkPackageTableConfiguration} from 'core-app/components/wp-table/wp-table-configuration';
+import {PortalCleanupService} from "core-app/modules/fields/display/display-portal/portal-cleanup.service";
 
 export class WorkPackageTable {
 
@@ -24,6 +25,7 @@ export class WorkPackageTable {
   public wpCacheService:WorkPackageCacheService = this.injector.get(WorkPackageCacheService);
   public states:States = this.injector.get(States);
   public I18n:I18nService = this.injector.get(I18nService);
+  public portalCleanupService:PortalCleanupService = this.injector.get(PortalCleanupService);
 
   public originalRows:string[] = [];
   public originalRowIndex:{ [id:string]:WorkPackageTableRow } = {};
@@ -37,7 +39,7 @@ export class WorkPackageTable {
   ];
 
   // Last render pass used for refreshing single rows
-  private lastRenderPass:PrimaryRenderPass | null = null;
+  public lastRenderPass:PrimaryRenderPass|null = null;
 
   // Work package editing context handler in the table, which handles open forms
   // and their contexts
@@ -73,7 +75,7 @@ export class WorkPackageTable {
     this.originalRowIndex = {};
     this.originalRows = rows.map((wp:WorkPackageResource, i:number) => {
       let wpId = wp.id!;
-      this.originalRowIndex[wpId] = <WorkPackageTableRow> {object: wp, workPackageId: wpId, position: i};
+      this.originalRowIndex[wpId] = <WorkPackageTableRow>{object: wp, workPackageId: wpId, position: i};
       return wpId;
     });
   }
@@ -98,10 +100,12 @@ export class WorkPackageTable {
     const renderPass = this.performRenderPass();
 
     // Insert timeline body
-    this.timelineBody.innerHTML = '';
-    this.timelineBody.appendChild(renderPass.timeline.timelineBody);
+    requestAnimationFrame(() => {
+      this.timelineBody.innerHTML = '';
+      this.timelineBody.appendChild(renderPass.timeline.timelineBody);
 
-    this.querySpace.rendered.putValue(renderPass.result);
+      this.querySpace.rendered.putValue(renderPass.result);
+    });
   }
 
   /**
@@ -142,12 +146,15 @@ export class WorkPackageTable {
 
 
   private performRenderPass() {
+    this.portalCleanupService.clear();
     this.editing.reset();
     const renderPass = this.lastRenderPass = this.rowBuilder.buildRows();
 
     // Insert table body
-    this.tbody.innerHTML = '';
-    this.tbody.appendChild(renderPass.tableBody);
+    requestAnimationFrame(() => {
+      this.tbody.innerHTML = '';
+      this.tbody.appendChild(renderPass.tableBody);
+    });
 
     return renderPass;
   }

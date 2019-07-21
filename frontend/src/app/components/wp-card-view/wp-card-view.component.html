@@ -13,7 +13,7 @@
        [attr.data-is-new]="wp.isNew || undefined"
        [attr.data-work-package-id]="wp.id"
        (doubleClickOrTap)="handleDblClick(wp)"
-       [ngClass]="{'-draggable': dragAndDropEnabled }">
+       [ngClass]="{'-draggable': canDragOutOf(wp), '-new' : wp.isNew }">
 
     <div class="wp-card--highlighting"
         [ngClass]="cardHighlightingClass(wp)">
@@ -44,6 +44,8 @@
       </div>
     </wp-edit-field-group>
 
+    <img *ngIf="this.bcfSnapshotPath(wp)" [src]="this.bcfSnapshotPath(wp)" class="wp-card--cover-image">
+
     <div *ngIf="!wp.isNew"
          class="wp-card--content">
       <span [textContent]="wpTypeAttribute(wp)"
@@ -60,8 +62,8 @@
                         [workPackage]="wp"
                         class="wp-card--status">
       </wp-status-button>
-      <user-avatar *ngIf="hasAssignee(wp)"
-                   [attr.data-user]="wp.assignee.$href"
+      <user-avatar *ngIf="wp.assignee"
+                   [user]="wp.assignee"
                    data-class-list="avatar-mini"
                    class="wp-card--assignee">
       </user-avatar>

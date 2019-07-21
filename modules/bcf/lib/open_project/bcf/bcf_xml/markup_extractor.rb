@@ -5,48 +5,60 @@
 
 module OpenProject::Bcf::BcfXml
   class MarkupExtractor
-    attr_reader :entry, :markup, :doc
+    attr_reader :entry
+    attr_accessor :markup, :doc
 
     def initialize(entry)
       @markup = entry.get_input_stream.read
-      @doc = Nokogiri::XML markup
+      @doc = Nokogiri::XML markup, nil, 'UTF-8'
     end
 
     def uuid
-      extract_non_empty :@Guid, attribute: true
+      extract :@Guid, attribute: true
     end
 
     def title
-      extract_non_empty :Title
+      extract :Title
     end
 
     def priority
-      extract_non_empty :Priority
+      extract :Priority
     end
 
     def status
-      extract_non_empty :@TopicStatus, attribute: true
+      extract :@TopicStatus, attribute: true
+    end
+
+    def type
+      extract :@TopicType, attribute: true
     end
 
     def description
-      extract_non_empty :Description
+      extract :Description
     end
 
     def author
-      extract_non_empty :CreationAuthor
+      extract :CreationAuthor
     end
 
     def assignee
-      extract_non_empty :AssignedTo
+      extract :AssignedTo
     end
 
     def modified_author
-      extract_non_empty :ModifiedAuthor
+      extract :ModifiedAuthor
+    end
+
+    def creation_date
+      extract_date_time '/Markup/Topic/CreationDate'
+    end
+
+    def modified_date
+      extract_date_time '/Markup/Topic/ModifiedDate'
     end
 
     def due_date
-      date = extract_non_empty :DueDate
-      Date.iso8601(date) unless date.nil?
+      extract_date_time '/Markup/Topic/DueDate'
     rescue ArgumentError
       nil
     end
@@ -55,9 +67,9 @@ module OpenProject::Bcf::BcfXml
       doc.xpath('/Markup/Viewpoints').map do |node|
         {
           uuid: node['Guid'],
-          viewpoint: node.xpath('Viewpoint/text()').to_s,
-          snapshot: node.xpath('Snapshot/text()').to_s
-        }
+          viewpoint: extract_from_node('Viewpoint', node),
+          snapshot: extract_from_node('Snapshot', node)
+        }.with_indifferent_access
       end
     end
 
@@ -65,19 +77,45 @@ module OpenProject::Bcf::BcfXml
       doc.xpath('/Markup/Comment').map do |node|
         {
           uuid: node['Guid'],
-          date: node.xpath('Date/text()').to_s,
-          author: node.xpath('Author/text()').to_s,
-          comment: node.xpath('Comment/text()').to_s
-        }
+          date: extract_date_time("Date", node),
+          author: extract_from_node('Author', node),
+          comment: extract_from_node('Comment', node),
+          modified_date: extract_date_time("ModifiedDate", node),
+          modified_author: extract_from_node("ModifiedAuthor", node)
+        }.with_indifferent_access
       end
+    end
+
+    def mail_addresses
+      people
+        .filter do |person|
+          # person value is an email address
+          person =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+        end
+        .uniq
+    end
+
+    def people
+      ([assignee, author] + comments.map { |comment| comment[:author] }).filter(&:present?).uniq
     end
 
     private
 
-    def extract_non_empty(path, prefix: '/Markup/Topic/'.freeze, attribute: false)
+    def extract_date_time(path, node = nil)
+      node ||= doc
+      date_time = extract_from_node(path, node)
+      Time.iso8601(date_time) unless date_time.nil?
+    end
+
+    def extract(path, prefix: '/Markup/Topic/'.freeze, attribute: false)
+      path = [prefix, path.to_s].join('')
+      extract_from_node(path, doc, attribute: attribute)
+    end
+
+    def extract_from_node(path, node, attribute: false)
       suffix = attribute ? '' : '/text()'.freeze
-      path = [prefix, path.to_s, suffix].join('')
-      doc.xpath(path).to_s.presence
+      path = [path.to_s, suffix].join('')
+      node.xpath(path).to_s.presence
     end
   end
 end

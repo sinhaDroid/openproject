@@ -35,6 +35,11 @@ import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notific
 import {WorkPackageCacheService} from "core-components/work-packages/work-package-cache.service";
 import {WpRelationInlineCreateServiceInterface} from "core-components/wp-relations/embedded/wp-relation-inline-create.service.interface";
 import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
+import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
+import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
+import {ApiV3Filter} from "core-components/api/api-v3/api-v3-filter-builder";
+import {UrlParamsHelperService} from "core-components/wp-query/url-params-helper";
+import {RelationResource} from "core-app/modules/hal/resources/relation-resource";
 
 @Component({
   templateUrl: './wp-relation-inline-add-existing.component.html'
@@ -42,6 +47,8 @@ import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-
 export class WpRelationInlineAddExistingComponent {
   public selectedWpId:string;
   public isDisabled = false;
+
+  public queryFilters = this.buildQueryFilters();
 
   public text = {
     save: this.I18n.t('js.relation_buttons.save'),
@@ -54,6 +61,8 @@ export class WpRelationInlineAddExistingComponent {
               protected wpRelations:WorkPackageRelationsService,
               protected wpNotificationsService:WorkPackageNotificationService,
               protected wpTableRefresh:WorkPackageTableRefreshService,
+              protected urlParamsHelper:UrlParamsHelperService,
+              protected querySpace:IsolatedQuerySpace,
               protected readonly I18n:I18nService) {
   }
 
@@ -80,8 +89,11 @@ export class WpRelationInlineAddExistingComponent {
       });
   }
 
-  public updateSelectedId(workPackageId:string) {
-    this.selectedWpId = workPackageId;
+  public onReferenced(workPackage?:WorkPackageResource) {
+    if (workPackage) {
+      this.selectedWpId = workPackage.id!;
+      this.addExisting();
+    }
   }
 
   public get relationType() {
@@ -95,5 +107,21 @@ export class WpRelationInlineAddExistingComponent {
 
   public cancel() {
     this.parent.resetRow();
+  }
+
+  private buildQueryFilters():ApiV3Filter[] {
+    const query = this.querySpace.query.value;
+
+    if (!query) {
+      return [];
+    }
+
+    const relationTypes = RelationResource.RELATION_TYPES(true);
+    let filters = query.filters.filter(filter => {
+      let id = this.urlParamsHelper.buildV3GetFilterIdFromFilter(filter);
+      return relationTypes.indexOf(id) === -1;
+    });
+
+    return this.urlParamsHelper.buildV3GetFilters(filters);
   }
 }

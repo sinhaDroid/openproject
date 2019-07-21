@@ -121,11 +121,13 @@ class WorkPackageField
   # For fields of type select, will check for an option with that value.
   def set_value(content)
     scroll_to_element(input_element)
-
-    if input_element.tag_name == 'ng-select'
+    if field_type == 'create-autocompleter'
       page.find('.ng-dropdown-panel .ng-option', text: content).click
     else
-      input_element.set(content)
+      # A normal fill_in would cause the focus loss on the input for empty strings.
+      # Thus the form would be submitted.
+      # https://github.com/erikras/redux-form/issues/686
+      input_element.fill_in with: content, fill_options: { clear: :backspace }
     end
   end
 
@@ -135,7 +137,7 @@ class WorkPackageField
   def unset_value(content, multi=false)
     scroll_to_element(input_element)
 
-    if input_element.tag_name == 'ng-select'
+    if field_type == 'create-autocompleter'
       if multi
         page.find('.ng-value-label', text: content).sibling('.ng-value-icon').click
       else
@@ -144,6 +146,15 @@ class WorkPackageField
     else
       input_element.set('')
     end
+  end
+
+  ##
+  # Use option of ng-select field to create new element from within the autocompleter
+  def set_new_value(content)
+    scroll_to_element(input_element)
+    input_element.find('input').set content
+
+    page.find('.ng-option', text: 'Create: ' + content).click
   end
 
   def type(text)
@@ -162,13 +173,13 @@ class WorkPackageField
       set_value value
 
       # select fields are saved on change
-      save! if save && field_type != 'ng-select'
+      save! if save && field_type != 'create-autocompleter'
       expect_state! open: expect_failure
     end
   end
 
   def submit_by_enter
-    if field_type == 'ng-select'
+    if field_type == 'create-autocompleter'
       autocomplete_selector.send_keys :return
     else
       input_element.native.send_keys :return
@@ -176,7 +187,7 @@ class WorkPackageField
   end
 
   def cancel_by_escape
-    if field_type == 'ng-select'
+    if field_type == 'create-autocompleter'
       autocomplete_selector.send_keys :escape
     else
       input_element.native.send_keys :escape
@@ -210,7 +221,7 @@ class WorkPackageField
            'type',
            'version',
            'category'
-        'ng-select'
+        'create-autocompleter'
       else
         :input
       end.to_s

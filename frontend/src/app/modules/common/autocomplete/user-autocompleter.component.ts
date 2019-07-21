@@ -31,23 +31,28 @@ import {DynamicBootstrapper} from "core-app/globals/dynamic-bootstrapper";
 import {HalResourceService} from "core-app/modules/hal/services/hal-resource.service";
 import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
 import {ApiV3FilterBuilder} from "core-components/api/api-v3/api-v3-filter-builder";
-import {NgSelectComponent} from "@ng-select/ng-select/dist";
+import {NgSelectComponent} from "@ng-select/ng-select";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
+import {Observable} from "rxjs";
+import {map} from "rxjs/operators";
+import {DebouncedRequestSwitchmap, errorNotificationHandler} from "core-app/helpers/rxjs/debounced-input-switchmap";
+import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
 
 @Component({
   template: `
-    <ng-select [items]="options"
+    <ng-select [items]="requests.output$ | async"
                bindLabel="name"
                bindValue="id"
                [ngModel]="initialSelection"
                [virtualScroll]="true"
-               (search)="onSearch($event)"
-               (change)="onModelChange($event)"
-               (focus)="onFocus()">
+               [trackByFn]="userTracker"
+               [typeahead]="requests.input$"
+               [loading]="requests.loading$ | async"
+               (focus)="onFocus()"
+               (change)="onModelChange($event)">
       <ng-template ng-option-tmp let-item="item" let-index="index">
-        <user-avatar *ngIf="item.href"
-                     [attr.data-user-name]="item.name"
-                     [attr.data-user-avatar-src]="item.avatar"
+        <user-avatar *ngIf="item"
+                     [user]="item"
                      data-class-list="avatar-mini">
         </user-avatar>
         {{ item.name }}
@@ -57,7 +62,9 @@ import {I18nService} from "core-app/modules/common/i18n/i18n.service";
   selector: 'user-autocompleter'
 })
 export class UserAutocompleterComponent implements OnInit {
-  @ViewChild(NgSelectComponent) public ngSelectComponent:NgSelectComponent;
+  userTracker = (item:any) => item.href;
+
+  @ViewChild(NgSelectComponent, {static: true}) public ngSelectComponent:NgSelectComponent;
   @Output() public onChange = new EventEmitter<void>();
   @Input() public clearAfterSelection:boolean = false;
 
@@ -65,16 +72,22 @@ export class UserAutocompleterComponent implements OnInit {
   @Input() public url:string = this.pathHelper.api.v3.users.path;
   @Input() public allowEmpty:boolean = false;
 
+
   @Input() public initialSelection:number|null = null;
 
   // Update an input field after changing, used when externally loaded
   private updateInputField:HTMLInputElement|undefined;
 
-  public options:any[];
+  /** Keep a switchmap for search term and loading state */
+  public requests = new DebouncedRequestSwitchmap<string, {[key:string]:string|null}>(
+    (searchTerm:string) => this.getAvailableUsers(this.url, searchTerm),
+    errorNotificationHandler(this.wpNotification)
+  );
 
   constructor(protected elementRef:ElementRef,
               protected halResourceService:HalResourceService,
               protected I18n:I18nService,
+              protected wpNotification:WorkPackageNotificationService,
               readonly pathHelper:PathHelperService) {
   }
 
@@ -89,14 +102,16 @@ export class UserAutocompleterComponent implements OnInit {
     if (allowEmpty === 'true') {
       this.allowEmpty = true;
     }
+  }
 
-    this.setAvailableUsers(this.url, '');
+  public onFocus() {
+    this.requests.input$.next('');
   }
 
   public onModelChange(user:any) {
     if (user) {
       this.onChange.emit(user);
-      this.setAvailableUsers(this.url, '');
+      this.requests.input$.next('');
 
       if (this.clearAfterSelection) {
         this.ngSelectComponent.clearItem(user);
@@ -108,34 +123,28 @@ export class UserAutocompleterComponent implements OnInit {
     }
   }
 
-  public onSearch($event:any) {
-    let urlQuery:any;
-    if($event) {
-      let filters = new ApiV3FilterBuilder();
-      filters.add('name', '~', [$event]);
-      urlQuery = { filters: filters.toJson() };
+  private getAvailableUsers(url:string, searchTerm:any):Observable<{[key:string]:string|null}[]> {
+    let filters = new ApiV3FilterBuilder();
+
+    if (searchTerm) {
+      filters.add('name', '~', [searchTerm]);
     }
 
-    this.setAvailableUsers(this.url, urlQuery);
-  }
+    return this.halResourceService
+      .get(url, { filters: filters.toJson() })
+      .pipe(
+        map(res => {
+          let options = res.elements.map((el:any) => {
+            return {name: el.name, id: el.id, href: el.href, avatar: el.avatar};
+          });
 
-  public onFocus(){
-    // For dynamic changes of the available users
-    // we have to reload them on focus (e.g. watchers)
-    this.setAvailableUsers(this.url, '');
-  }
+          if (this.allowEmpty) {
+            options.unshift({name: this.I18n.t('js.timelines.filter.noneSelection'), href: null, id: null});
+          }
 
-  private setAvailableUsers(url:string, filters:any) {
-    this.halResourceService.get(url, filters)
-      .subscribe(res => {
-        this.options = res.elements.map((el:any) => {
-          return {name: el.name, id: el.id, href: el.href, avatar: el.avatar};
-        });
-
-        if (this.allowEmpty) {
-          this.options.unshift({ name: this.I18n.t('js.timelines.filter.noneSelection'), id: null });
-        }
-      });
+          return options;
+        })
+      );
   }
 
   private setInitialSelection() {
@@ -146,4 +155,4 @@ export class UserAutocompleterComponent implements OnInit {
   }
 }
 
-DynamicBootstrapper.register({ selector: 'user-autocompleter', cls: UserAutocompleterComponent  });
+DynamicBootstrapper.register({selector: 'user-autocompleter', cls: UserAutocompleterComponent});

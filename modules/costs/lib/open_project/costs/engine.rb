@@ -19,7 +19,6 @@
 
 require 'open_project/plugins'
 
-
 module OpenProject::Costs
   class Engine < ::Rails::Engine
     engine_name :openproject_costs
@@ -31,7 +30,8 @@ module OpenProject::Costs
              bundled: true,
              settings: {
                default: { 'costs_currency' => 'EUR','costs_currency_format' => '%n %u' },
-               partial: 'settings/openproject_costs'
+               partial: 'settings/openproject_costs',
+               menu_item: :costs_setting
              },
              name: 'OpenProject Costs' do
 
@@ -63,16 +63,11 @@ module OpenProject::Costs
         permission :edit_cost_objects, { cost_objects: [:index, :show, :edit, :update, :destroy, :new, :create, :copy] }
       end
 
-      # register additional permissions for the time log
-      project_module :time_tracking do
-        permission :view_own_time_entries, { timelog: [:index, :report] }
-      end
-
       # Menu extensions
       menu :admin_menu,
            :cost_types,
            { controller: '/cost_types', action: 'index' },
-           icon: 'icon2 icon-cost-types',
+           parent: :admin_costs,
            caption: :label_cost_type_plural
 
       menu :project_menu,
@@ -90,6 +85,7 @@ module OpenProject::Costs
 
     patches [:Project, :User, :TimeEntry, :PermittedParams,
              :ProjectsController, :ApplicationHelper]
+    patch_with_namespace :WorkPackages, :BaseContract
     patch_with_namespace :API, :V3, :WorkPackages, :Schema, :SpecificWorkPackageSchema
     patch_with_namespace :BasicData, :RoleSeeder
     patch_with_namespace :BasicData, :SettingSeeder

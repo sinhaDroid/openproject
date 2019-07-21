@@ -36,36 +36,58 @@ describe 'API v3 Project resource' do
   let(:current_user) do
     FactoryBot.create(:user, member_in_project: project, member_through_role: role)
   end
-  let(:project) { FactoryBot.create(:project, is_public: false) }
+  let(:project) do
+    FactoryBot.create(:project, is_public: false)
+  end
   let(:other_project) do
     FactoryBot.create(:project, is_public: false)
   end
   let(:role) { FactoryBot.create(:role) }
+  let(:custom_field) do
+    FactoryBot.create(:text_project_custom_field)
+  end
+  let(:custom_value) do
+    CustomValue.create(custom_field: custom_field,
+                       value: '1234',
+                       customized: project)
+  end
 
   before do
-    allow(User).to receive(:current).and_return current_user
+    login_as(current_user)
   end
 
   describe '#get /projects/:id' do
     let(:get_path) { api_v3_paths.project project.id }
-    subject(:response) { last_response }
+    subject(:response) do
+      get get_path
+
+      last_response
+    end
 
     context 'logged in user' do
-      before do
-        get get_path
-      end
-
-      it 'should respond with 200' do
+      it 'responds with 200 OK' do
         expect(subject.status).to eq(200)
       end
 
-      it 'should respond with correct project' do
+      it 'responds with the correct project' do
         expect(subject.body).to include_json('Project'.to_json).at_path('_type')
         expect(subject.body).to be_json_eql(project.identifier.to_json).at_path('identifier')
       end
 
+      it 'includes custom fields' do
+        custom_value
+
+        expect(subject.body)
+          .to be_json_eql(custom_value.value.to_json)
+          .at_path("customField#{custom_field.id}/raw")
+      end
+
       context 'requesting nonexistent project' do
         let(:get_path) { api_v3_paths.project 9999 }
+
+        before do
+          response
+        end
 
         it_behaves_like 'not found' do
           let(:id) { 9999 }
@@ -75,6 +97,10 @@ describe 'API v3 Project resource' do
 
       context 'requesting project without sufficient permissions' do
         let(:get_path) { api_v3_paths.project other_project.id }
+
+        before do
+          response
+        end
 
         it_behaves_like 'not found' do
           let(:id) { another_project.id.to_s }
@@ -97,9 +123,10 @@ describe 'API v3 Project resource' do
   describe '#get /projects' do
     let(:get_path) { api_v3_paths.projects }
     let(:response) { last_response }
+    let(:projects) { [project, other_project] }
 
     before do
-      other_project
+      projects
 
       get get_path
     end
@@ -112,6 +139,8 @@ describe 'API v3 Project resource' do
     it_behaves_like 'API V3 collection response', 1, 1, 'Project'
 
     context 'filtering for project by ancestor' do
+      let(:projects) { [project, other_project, parent_project] }
+
       let(:parent_project) do
         parent_project = FactoryBot.create(:project, is_public: false)
 
@@ -136,6 +165,46 @@ describe 'API v3 Project resource' do
         expect(response.body)
           .to be_json_eql(api_v3_paths.project(project.id).to_json)
           .at_path('_embedded/elements/0/_links/self/href')
+      end
+    end
+
+    context 'filtering for principals (members)' do
+      let(:other_project) do
+        Role.non_member
+        FactoryBot.create(:public_project)
+      end
+      let(:projects) { [project, other_project] }
+
+      context 'if filtering for a value' do
+        let(:filter_query) do
+          [{ principal: { operator: '=', values: [current_user.id.to_s] } }]
+        end
+
+        let(:get_path) do
+          "#{api_v3_paths.projects}?filters=#{CGI.escape(JSON.dump(filter_query))}"
+        end
+
+        it 'returns the filtered for value' do
+          expect(response.body)
+            .to be_json_eql(project.id.to_json)
+            .at_path('_embedded/elements/0/id')
+        end
+      end
+
+      context 'if filtering for a negative value' do
+        let(:filter_query) do
+          [{ principal: { operator: '!', values: [current_user.id.to_s] } }]
+        end
+
+        let(:get_path) do
+          "#{api_v3_paths.projects}?filters=#{CGI.escape(JSON.dump(filter_query))}"
+        end
+
+        it 'returns the projects not matching the value' do
+          expect(response.body)
+            .to be_json_eql(other_project.id.to_json)
+            .at_path('_embedded/elements/0/id')
+        end
       end
     end
   end

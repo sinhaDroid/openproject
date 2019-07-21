@@ -13,7 +13,7 @@ import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-
 })
 export class WorkPackageRelationsCreateComponent {
   @Input() readonly workPackage:WorkPackageResource;
-  @ViewChild('focusAfterSave') readonly focusAfterSave:ElementRef;
+  @ViewChild('focusAfterSave', { static: false }) readonly focusAfterSave:ElementRef;
 
   public showRelationsCreateForm:boolean = false;
   public selectedRelationType:string = RelationResource.DEFAULT();
@@ -49,8 +49,10 @@ export class WorkPackageRelationsCreateComponent {
       .then(() => this.isDisabled = false);
   }
 
-  public updateSelectedId(workPackageId:string) {
-    this.selectedWpId = workPackageId;
+  public onReferenced(workPackage?:WorkPackageResource) {
+    if (workPackage) {
+      this.selectedWpId = workPackage.id!;
+    }
   }
 
   protected createCommonRelation() {
@@ -77,6 +79,6 @@ export class WorkPackageRelationsCreateComponent {
         this.selectedWpId = '';
         this.focusAfterSave.nativeElement.focus();
       }
-    });
+    }, 50);
   }
 }

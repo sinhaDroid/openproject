@@ -28,12 +28,13 @@
 
 import {performAnchorHijacking} from "./global-listeners/link-hijacking";
 import {augmentedDatePicker} from "./global-listeners/augmented-date-picker";
+import {refreshOnFormChanges} from 'core-app/globals/global-listeners/refresh-on-form-changes';
+import {registerRequestForConfirmation} from "core-app/globals/global-listeners/request-for-confirmation";
 
 /**
  * A set of listeners that are relevant on every page to set sensible defaults
  */
 (function($:JQueryStatic) {
-
 
   $(function() {
     $(document.documentElement!)
@@ -50,11 +51,25 @@ import {augmentedDatePicker} from "./global-listeners/augmented-date-picker";
         return true;
       });
 
+    // Jump to the element given by location.hash, if present
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#')) {
+      const el = document.querySelector(hash);
+      el && el.scrollIntoView();
+    }
+
     // Disable global drag & drop handling, which results in the browser loading the image and losing the page
     $(document.documentElement!)
       .on('dragover drop', (evt:JQueryEventObject) => {
         evt.preventDefault();
         return false;
       });
+
+    refreshOnFormChanges();
+
+    // Allow forms with [request-for-confirmation]
+    // to show the password confirmation dialog
+    registerRequestForConfirmation($);
   });
+
 }(jQuery));

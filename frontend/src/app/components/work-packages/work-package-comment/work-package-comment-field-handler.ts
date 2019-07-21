@@ -58,7 +58,7 @@ export abstract class WorkPackageCommentFieldHandler extends EditFieldHandler im
       required: false,
       type: '_comment',
       hasDefault: false
-    }
+    };
   }
 
   public get rawComment() {
@@ -91,6 +91,9 @@ export abstract class WorkPackageCommentFieldHandler extends EditFieldHandler im
   focus():void {
     const trigger = this.elementRef.nativeElement.querySelector('.inplace-editing--trigger-container');
     trigger && trigger.focus();
+  }
+
+  onFocusOut():void {
   }
 
   handleUserKeydown(event:JQueryEventObject, onlyCancel?:boolean):void {

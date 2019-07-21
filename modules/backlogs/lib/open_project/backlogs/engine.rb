@@ -35,9 +35,6 @@
 
 require 'open_project/plugins'
 
-
-require 'acts_as_silent_list'
-
 module OpenProject::Backlogs
   class Engine < ::Rails::Engine
     engine_name :openproject_backlogs
@@ -47,7 +44,8 @@ module OpenProject::Backlogs
                    'task_type'    => nil,
                    'card_spec'    => nil
       },
-        partial: 'shared/settings' }
+        partial: 'shared/settings',
+        menu_item: :backlogs_settings }
     end
 
     include OpenProject::Plugins::ActsAsOpEngine
@@ -56,16 +54,16 @@ module OpenProject::Backlogs
              author_url: 'http://finn.de',
              bundled: true,
              settings: settings do
-      Redmine::AccessControl.permission(:edit_project).actions << 'projects/project_done_statuses'
-      Redmine::AccessControl.permission(:edit_project).actions << 'projects/rebuild_positions'
+      OpenProject::AccessControl.permission(:edit_project).actions << 'projects/project_done_statuses'
+      OpenProject::AccessControl.permission(:edit_project).actions << 'projects/rebuild_positions'
 
-      Redmine::AccessControl.permission(:add_work_packages).tap do |add|
+      OpenProject::AccessControl.permission(:add_work_packages).tap do |add|
         add.actions << 'rb_stories/create'
         add.actions << 'rb_tasks/create'
         add.actions << 'rb_impediments/create'
       end
 
-      Redmine::AccessControl.permission(:edit_work_packages).tap do |edit|
+      OpenProject::AccessControl.permission(:edit_work_packages).tap do |edit|
         edit.actions << 'rb_stories/update'
         edit.actions << 'rb_tasks/update'
         edit.actions << 'rb_impediments/update'
@@ -138,6 +136,12 @@ module OpenProject::Backlogs
     patch_with_namespace :WorkPackages, :UpdateService
     patch_with_namespace :WorkPackages, :SetAttributesService
     patch_with_namespace :WorkPackages, :BaseContract
+
+    config.to_prepare do
+      next if Versions::BaseContract.included_modules.include?(OpenProject::Backlogs::Patches::VersionBaseContractPatch)
+
+      Versions::BaseContract.prepend(OpenProject::Backlogs::Patches::VersionBaseContractPatch)
+    end
 
     extend_api_response(:v3, :work_packages, :work_package) do
       property :position,

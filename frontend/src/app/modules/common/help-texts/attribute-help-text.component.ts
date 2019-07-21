@@ -28,14 +28,24 @@
 
 import {AttributeHelpTextsService} from './attribute-help-text.service';
 import {HelpTextDmService} from 'core-app/modules/hal/dm-services/help-text-dm.service';
-import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Injector,
+  Input,
+  OnInit
+} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {OpModalService} from 'core-components/op-modals/op-modal.service';
 import {AttributeHelpTextModal} from 'core-app/modules/common/help-texts/attribute-help-text.modal';
+import {DynamicBootstrapper} from "core-app/globals/dynamic-bootstrapper";
 
 @Component({
   selector: 'attribute-help-text',
-  templateUrl: './help-text.directive.html'
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './attribute-help-text.component.html'
 })
 export class AttributeHelpTextComponent implements OnInit {
   // Attribute to show help text for
@@ -47,7 +57,6 @@ export class AttributeHelpTextComponent implements OnInit {
   // Load single id entry if given
   @Input() public helpTextId?:string;
 
-  public optionaltitle?:string;
   public exists:boolean = false;
 
   readonly text = {
@@ -60,17 +69,28 @@ export class AttributeHelpTextComponent implements OnInit {
               protected helpTextDm:HelpTextDmService,
               protected attributeHelpTexts:AttributeHelpTextsService,
               protected opModalService:OpModalService,
+              protected cdRef:ChangeDetectorRef,
               protected injector:Injector,
               protected I18n:I18nService) {
   }
 
   ngOnInit() {
+    const element:HTMLElement = this.elementRef.nativeElement;
+    if (element.dataset.helpTextId) {
+      this.helpTextId = element.dataset.helpTextId!;
+      this.attribute = element.dataset.attribute!;
+      this.attributeScope = element.dataset.attributeScope!;
+      this.additionalLabel = element.dataset.additionalLabel!;
+    }
+
+
     if (this.helpTextId) {
       this.exists = true;
     } else {
       // Need to load the promise to find out if the attribute exists
       this.load().then((resource) => {
         this.exists = !!resource;
+        this.cdRef.detectChanges();
         return resource;
       });
     }
@@ -90,3 +110,5 @@ export class AttributeHelpTextComponent implements OnInit {
     }
   }
 }
+
+DynamicBootstrapper.register({ cls: AttributeHelpTextComponent, selector: 'attribute-help-text'});

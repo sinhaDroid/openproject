@@ -128,7 +128,7 @@ OpenProject::Application.routes.draw do
       as: 'custom_style_touch_icon',
       constraints: { filename: /[^\/]*/ }
 
-  get 'highlighting/styles' => 'highlighting#styles',
+  get 'highlighting/styles(/:version_tag)' => 'highlighting#styles',
       as: 'highlighting_css_styles'
 
   resources :custom_fields, except: :show do
@@ -139,6 +139,8 @@ OpenProject::Application.routes.draw do
             as: :delete_option_of
     end
   end
+
+  mount Dashboards::Engine, at: 'projects/:project_id/dashboards', as: :project_dashboards
 
   get '(projects/:project_id)/search' => 'search#index', as: 'search'
 
@@ -214,7 +216,7 @@ OpenProject::Application.routes.draw do
     namespace :time_entries do
       resource :report, controller: 'reports', only: [:show]
     end
-    resources :time_entries, controller: 'timelog'
+    resources :time_entries, controller: 'timelog', except: [:show]
 
     # Match everything to be the ID of the wiki page except the part that
     # is reserved for the format. This assumes that we have only two formats:
@@ -240,8 +242,6 @@ OpenProject::Application.routes.draw do
         patch :parent_page, action: 'update_parent_page'
         get :history
         post :protect
-        post :add_attachment
-        get :list_attachments
         get :select_main_menu_item, to: 'wiki_menu_items#select_main_menu_item'
         post :replace_main_menu_item, to: 'wiki_menu_items#replace_main_menu_item'
       end
@@ -370,7 +370,7 @@ OpenProject::Application.routes.draw do
       end
     end
 
-    resources :roles, only: %i[index new create edit update destroy] do
+    resources :roles, except: %i[show] do
       collection do
         put '/' => 'roles#bulk_update'
         get :report
@@ -411,6 +411,11 @@ OpenProject::Application.routes.draw do
     # FIXME: this is kind of evil!! We need to remove this soonest and
     # cover the functionality. Route is being used in work-package-service.js:331
     get '/bulk' => 'bulk#destroy'
+  end
+
+  scope controller: 'work_packages/settings' do
+    get 'work_package_tracking' => 'work_packages/settings#index'
+    post 'work_package_tracking' => 'work_packages/settings#edit'
   end
 
   resources :work_packages, only: [:index] do
@@ -466,6 +471,11 @@ OpenProject::Application.routes.draw do
     end
   end
 
+  scope controller: 'users_settings' do
+    get 'users_settings' => 'users_settings#index'
+    post 'users_settings' => 'users_settings#edit'
+  end
+
   resources :forums, only: [] do
     resources :topics, controller: 'messages', except: [:index], shallow: true do
       member do
@@ -480,25 +490,21 @@ OpenProject::Application.routes.draw do
   end
 
   # redirect for backwards compatibility
-  scope constraints: { id: /\d+/, filename: /[^\/]*/ } do
-    get '/attachments/download/:id/:filename',
-        to: redirect("#{rails_relative_url_root}/attachments/%{id}/%{filename}"),
-        format: false
+  scope 'attachments',
+        constraints: { id: /\d+/, filename: /[^\/]*/ },
+        format: false do
+    get '/download/:id/:filename',
+        to: redirect("#{rails_relative_url_root}/attachments/%{id}/%{filename}")
 
-    get '/attachments/download/:id',
-        to: redirect("#{rails_relative_url_root}/attachments/%{id}"),
-        format: false
-  end
+    get '/download/:id',
+        to: redirect("#{rails_relative_url_root}/attachments/%{id}")
 
-  resources :attachments, only: %i{destroy fulltext}, format: false do
-    member do
-      scope via: :get, constraints: { id: /\d+/, filename: /[^\/]*/ } do
-        match '(/:filename)' => 'attachments#download', as: 'download'
-      end
+    scope ':id' do
+      get '(/:filename)',
+          to: redirect("#{rails_relative_url_root}/api/v3/attachments/%{id}/content")
 
-      scope via: :get, constraints: { id: /\d+/, filename: /[^\/]*/ } do
-        match '(/:filename/fulltext)' => 'attachments#fulltext', as: 'fulltext'
-      end
+      delete '',
+             to: redirect("#{rails_relative_url_root}/api/v3/attachments/%{id}")
     end
   end
 
@@ -545,7 +551,12 @@ OpenProject::Application.routes.draw do
     patch 'user_settings', action: 'user_settings'
   end
 
-  get 'authentication' => 'authentication#index'
+
+  scope controller: 'authentication' do
+    get 'authentication' => 'authentication#index'
+    get 'authentication_settings' => 'authentication#authentication_settings'
+    post 'authentication_settings' => 'authentication#edit'
+  end
 
   resources :colors do
     member do

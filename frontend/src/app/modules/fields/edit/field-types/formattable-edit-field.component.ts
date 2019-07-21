@@ -64,19 +64,22 @@ export class FormattableEditFieldComponent extends EditFieldComponent implements
   // Detect when inner component could not be initalized
   public initializationError = false;
 
-  @ViewChild(OpCkeditorComponent) instance:OpCkeditorComponent;
+  @ViewChild(OpCkeditorComponent, { static: true }) instance:OpCkeditorComponent;
 
   // Values used in template
   public isPreview:boolean = false;
   public previewHtml:string = '';
-  public text = {
-    attachmentLabel: this.I18n.t('js.label_formattable_attachment_hint'),
-    save: this.I18n.t('js.inplace.button_save', {attribute: this.schema.name}),
-    cancel: this.I18n.t('js.inplace.button_cancel', {attribute: this.schema.name})
-  };
+  public text:any = {};
 
   ngOnInit() {
+    super.ngOnInit();
+
     this.handler.registerOnSubmit(() => this.getCurrentValue());
+    this.text = {
+      attachmentLabel: this.I18n.t('js.label_formattable_attachment_hint'),
+      save: this.I18n.t('js.inplace.button_save', {attribute: this.schema.name}),
+      cancel: this.I18n.t('js.inplace.button_cancel', {attribute: this.schema.name})
+    };
   }
 
   public onCkeditorSetup(editor:ICKEditorInstance) {
@@ -131,7 +134,7 @@ export class FormattableEditFieldComponent extends EditFieldComponent implements
   }
 
   public reset() {
-    if (this.instance) {
+    if (this.instance && this.instance.initialized) {
       this.instance.content = this.rawValue;
     }
   }
@@ -154,5 +157,12 @@ export class FormattableEditFieldComponent extends EditFieldComponent implements
 
   public get isFormattable() {
     return true;
+  }
+
+  protected initialize() {
+    if (this.resource.isNew && this.instance) {
+      // Reset CKEditor when reloading after type/form changes
+      this.reset();
+    }
   }
 }

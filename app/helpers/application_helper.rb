@@ -364,8 +364,7 @@ module ApplicationHelper
     if back_url.present?
       back_url = back_url.to_s
     elsif request.get? and !params.blank?
-      params.permit!
-      back_url = url_for(params)
+      back_url = request.url
     end
 
     hidden_field_tag('back_url', back_url) unless back_url.blank?

@@ -27,6 +27,8 @@ $grid--header-width: 20px
     .widget-box
       height: 100%
 
+    &:hover icon-triggered-context-menu
+      visibility: visible
 
   &.-resizing
     border: 1px solid $primary-color
@@ -38,6 +40,12 @@ $grid--header-width: 20px
     justify-content: center
     align-items: center
 
+  &.-placeholder
+    pointer-events: none
+
+  &.-dragged
+    display: none
+
   .resizer
     margin-top: 0
     margin-left: auto
@@ -46,6 +54,17 @@ $grid--header-width: 20px
 
   .cdk-drag-handle
     cursor: grab
+    float: left
+    padding-top: 5px
+
+  .widget-box--header
+    display: flex
+
+  .widget-box--header-title
+    flex-grow: 1
+
+  icon-triggered-context-menu
+    visibility: hidden
 
 .grid--area-drag-handle
   margin-left: -19px
@@ -64,7 +83,7 @@ $grid--header-width: 20px
 .grid--area-content
   height: 100%
 
-  ng-component
+  ng-component, widget-wp-graph
     display: flex
     flex-direction: column
     height: 100%
@@ -80,6 +99,11 @@ $grid--header-width: 20px
   height: 100%
   overflow-x: auto
   overflow-y: auto
+
+  &.-no-overflow
+    overflow-x: hidden
+    overflow-y: hidden
+    display: block
 
 .grid--widget-limited-text
   max-height: 5rem
@@ -147,3 +171,4 @@ $grid--header-width: 20px
 
   &:last-of-type
     border-bottom: none
+

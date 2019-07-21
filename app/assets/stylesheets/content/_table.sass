@@ -50,6 +50,7 @@ $input-elements: input, 'input.form--text-field', select, 'select.form--select',
   overflow:
     x: auto
     y: auto
+  @include styled-scroll-bar
 
 .generic-table--action-buttons
   margin-top: 2rem
@@ -223,6 +224,7 @@ thead.-sticky th
 .generic-table--empty-header
   padding:       0 6px
   height:        $generic-table--header-height
+  line-height:   $generic-table--header-height
   border-bottom: 1px solid $table-row-border-color
   z-index:       1
 

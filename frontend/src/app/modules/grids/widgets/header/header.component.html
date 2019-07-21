@@ -1,0 +1,12 @@
+<h3 class="widget-box--header">
+  <i class="icon-context"
+     aria-hidden="true"
+     [ngClass]="iconClass"></i>
+
+  <editable-toolbar-title [title]="name"
+                          (onSave)="renamed($event)"
+                          class="widget-box--header-title">
+  </editable-toolbar-title>
+
+  <ng-content></ng-content>
+</h3>

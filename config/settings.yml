@@ -138,6 +138,8 @@ activity_days_default:
   default: 30
 per_page_options:
   default: '20, 100'
+forced_single_page_size:
+  default: 250
 mail_from:
   default: openproject@example.net
 bcc_recipients:
@@ -158,7 +160,7 @@ available_languages:
   - pt
   - 'pt-BR'
   - it
-  - zh
+  - 'zh-CN'
   - ko
   - ru
 default_language:
@@ -259,12 +261,12 @@ mail_suffix_separators:
 work_package_list_default_columns:
   serialized: true
   default:
+  - type
   - id
   - subject
-  - type
   - status
   - assigned_to
-  - updated_on
+  - priority
 work_package_list_default_highlighting_mode:
   default: 'inline'
 work_package_list_default_highlighted_attributes:
@@ -284,6 +286,7 @@ default_projects_modules:
   serialized: true
   default:
   - calendar
+  - board_view
   - work_package_tracking
   - news
   - time_tracking
@@ -365,3 +368,6 @@ security_badge_displayed:
   default: true
 installation_uuid:
   default: null
+oauth_allow_remapping_of_existing_users:
+  default: false
+  format: boolean

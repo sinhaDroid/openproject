@@ -31,6 +31,8 @@ import {WorkPackageChangeset} from "core-components/wp-edit-form/work-package-ch
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 import {DisplayFieldContext} from "core-app/modules/fields/display/display-field.service";
 
+export const cssClassCustomOption = 'custom-option';
+
 export class DisplayField extends Field {
   public static type:string;
   public mode:string | null = null;
@@ -38,12 +40,24 @@ export class DisplayField extends Field {
 
   protected I18n:I18nService = this.$injector.get(I18nService);
 
-  constructor(public resource:any,
-              public name:string,
-              public schema:IFieldSchema,
-              public context:DisplayFieldContext) {
+  constructor(public name:string, public context:DisplayFieldContext) {
     super();
   }
+
+  /**
+   * Apply the display field to the given resource and schema
+   * @param resource
+   * @param schema
+   */
+  public apply(resource:any, schema:IFieldSchema) {
+    this.resource = resource;
+    this.schema = schema;
+  }
+
+  public texts = {
+    empty: this.I18n.t('js.work_packages.no_value'),
+    placeholder: this.I18n.t('js.placeholders.default')
+  };
 
   public get isFormattable():boolean {
     return false;
@@ -104,5 +118,17 @@ export class DisplayField extends Field {
 
   public render(element:HTMLElement, displayText:string):void {
     element.textContent = displayText;
+  }
+
+  /**
+   * Render an empty placeholder if no values are present
+   */
+  public renderEmpty(element:HTMLElement) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.setAttribute('title', this.texts.empty);
+    emptyDiv.textContent = this.texts.placeholder;
+    emptyDiv.classList.add(cssClassCustomOption, '-empty');
+
+    element.appendChild(emptyDiv);
   }
 }

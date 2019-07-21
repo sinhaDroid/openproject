@@ -1,18 +1,17 @@
-import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {WorkPackageTableTimelineService} from 'core-components/wp-fast-table/state/wp-table-timeline.service';
 import {WorkPackageTablePaginationService} from 'core-components/wp-fast-table/state/wp-table-pagination.service';
 import {OpTableActionFactory} from 'core-components/wp-table/table-actions/table-action';
 import {OpTableActionsService} from 'core-components/wp-table/table-actions/table-actions.service';
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {QueryDmService} from 'core-app/modules/hal/dm-services/query-dm.service';
-import {WorkPackageCollectionResource} from 'core-app/modules/hal/resources/wp-collection-resource';
 import {WpTableConfigurationModalComponent} from 'core-components/wp-table/configuration-modal/wp-table-configuration.modal';
 import {OpModalService} from 'core-components/op-modals/op-modal.service';
 import {WorkPackageEmbeddedBaseComponent} from "core-components/wp-table/embedded/wp-embedded-base.component";
 import {QueryFormResource} from "core-app/modules/hal/resources/query-form-resource";
 import {QueryFormDmService} from "core-app/modules/hal/dm-services/query-form-dm.service";
+import {distinctUntilChanged, take, withLatestFrom, map} from "rxjs/operators";
 import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
-import {withLatestFrom} from "rxjs/internal/operators";
 
 @Component({
   selector: 'wp-embedded-table',
@@ -23,6 +22,12 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
   @Input('queryProps') public queryProps:any = {};
   @Input() public tableActions:OpTableActionFactory[] = [];
   @Input() public externalHeight:boolean = false;
+
+  /** Inform about loading errors */
+  @Output() public onError = new EventEmitter<string>();
+
+  /** Inform about loaded query */
+  @Output() public onQueryLoaded = new EventEmitter<QueryResource>();
 
   readonly QueryDm:QueryDmService = this.injector.get(QueryDmService);
   readonly opModalService:OpModalService = this.injector.get(OpModalService);
@@ -52,16 +57,17 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
     }
 
     // Reload results on changes to pagination (Regression #29845)
-    this.querySpace.ready.fireOnStateChange(
-      this.wpTablePagination.state,
-      'Query loaded'
-    ).values$().pipe(
-      untilComponentDestroyed(this),
-      withLatestFrom(this.querySpace.query.values$())
-    ).subscribe(([pagination, query]) => {
+    this.wpTablePagination
+      .updates$()
+      .pipe(
+        map(pagination => [pagination.page, pagination.perPage]),
+        distinctUntilChanged(),
+        untilComponentDestroyed(this),
+        withLatestFrom(this.querySpace.query.values$())
+    ).subscribe(([_, query]) => {
       this.loadingIndicator = this.QueryDm
         .loadResults(query, this.wpTablePagination.paginationObject)
-        .then((results) => this.initializeStates(query, results));
+        .then((query) => this.initializeStates(query));
     });
   }
 
@@ -77,29 +83,27 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
       });
   }
 
-  private initializeStates(query:QueryResource, results:WorkPackageCollectionResource) {
-
+  protected initializeStates(query:QueryResource) {
     // If the configuration requests filters, we need to load the query form as well.
     if (this.configuration.withFilters) {
       this.loadForm(query);
     }
 
-    this.querySpace.ready.doAndTransition('Query loaded', () => {
-      this.wpStatesInitialization.clearStates();
-      this.wpStatesInitialization.initializeFromQuery(query, results);
-      this.wpStatesInitialization.updateQuerySpace(query, results);
+    super.initializeStates(query);
 
-      return this.querySpace.tableRendering.onQueryUpdated.valuesPromise()
-        .then(() => {
-          this.showTablePagination = results.total > results.count;
-          this.setLoaded();
+    this.querySpace
+      .initialized
+      .values$()
+      .pipe(take(1))
+      .subscribe(() => {
+        this.showTablePagination = query.results.total > query.results.count;
+        this.setLoaded();
 
-          // Disable compact mode when timeline active
-          if (this.wpTableTimeline.isVisible) {
-            this.configuration = { ...this.configuration, compactTableStyle: false };
-          }
-        });
-    });
+        // Disable compact mode when timeline active
+        if (this.wpTableTimeline.isVisible) {
+          this.configuration = { ...this.configuration, compactTableStyle: false };
+        }
+      });
   }
 
   private loadForm(query:QueryResource):Promise<QueryFormResource> {
@@ -123,10 +127,9 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
     if (this.loadedQuery) {
       const query = this.loadedQuery;
       this.loadedQuery = undefined;
-      this.initializeStates(query, query.results);
+      this.initializeStates(query);
       return Promise.resolve(this.loadedQuery!);
     }
-
 
     // HACK: Decrease loading time of queries when results are not needed.
     // We should allow the backend to disable results embedding instead.
@@ -150,7 +153,8 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
         this.queryProjectScope
       )
       .then((query:QueryResource) => {
-        this.initializeStates(query, query.results);
+        this.initializeStates(query);
+        this.onQueryLoaded.emit(query);
         return query;
       })
       .catch((error) => {
@@ -158,6 +162,7 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
           'js.error.embedded_table_loading',
           { message: _.get(error, 'message', error) }
         );
+        this.onError.emit(error);
       });
 
     if (visible) {

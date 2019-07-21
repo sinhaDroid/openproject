@@ -30,23 +30,15 @@ import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {QueryGroupByResource} from 'core-app/modules/hal/resources/query-group-by-resource';
 import {WorkPackageQueryStateService} from './wp-table-base.service';
 import {QueryColumn} from '../../wp-query/query-column';
-import {InputState} from 'reactivestates';
 import {States} from 'core-components/states.service';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {Injectable} from '@angular/core';
-import {cloneHalResource} from 'core-app/modules/hal/helpers/hal-resource-builder';
-import {Observable} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 @Injectable()
 export class WorkPackageTableGroupByService extends WorkPackageQueryStateService<QueryGroupByResource|null> {
   public constructor(readonly states:States,
                      readonly querySpace:IsolatedQuerySpace) {
     super(querySpace);
-  }
-
-  public get state():InputState<QueryGroupByResource|null> {
-    return this.querySpace.groupBy;
   }
 
   valueFromQuery(query:QueryResource) {
@@ -72,14 +64,8 @@ export class WorkPackageTableGroupByService extends WorkPackageQueryStateService
     return !!_.find(this.available, candidate => candidate.id === column.id);
   }
 
-  public update(groupBy:QueryGroupByResource|null) {
-    // hierarchies and group by are mutually exclusive
-    if (groupBy !== null) {
-      let hierarchy = this.querySpace.hierarchies.value!;
-      this.querySpace.hierarchies.putValue({ ...hierarchy, isVisible: false });
-    }
-
-    super.update(groupBy);
+  public disable() {
+    this.update(null);
   }
 
   public setBy(column:QueryColumn) {
@@ -91,7 +77,7 @@ export class WorkPackageTableGroupByService extends WorkPackageQueryStateService
   }
 
   public get current():QueryGroupByResource|null {
-    return this.state.getValueOr(null);
+    return this.lastUpdatedState.getValueOr(null);
   }
 
   protected get availableState() {
@@ -107,6 +93,7 @@ export class WorkPackageTableGroupByService extends WorkPackageQueryStateService
   }
 
   public isCurrentlyGroupedBy(column:QueryColumn):boolean {
-    return !!(this.current && this.current.id === column.id);
+    let cur = this.current;
+    return !!(cur && cur.id === column.id);
   }
 }

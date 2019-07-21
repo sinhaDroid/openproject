@@ -28,40 +28,19 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Grids::SetAttributesService
-  include Concerns::Contracted
-
-  attr_accessor :user,
-                :grid,
-                :contract_class
-
-  def initialize(user:, grid:, contract_class:)
-    self.user = user
-    self.grid = grid
-    self.contract_class = contract_class
-  end
-
-  def call(attributes)
-    widget_attributes = attributes.delete(:widgets)
-
-    set_attributes(attributes)
-    update_widgets(widget_attributes)
-
-    validate_and_result
-  end
-
+class Grids::SetAttributesService < ::BaseServices::SetAttributes
   private
 
-  def validate_and_result
-    success, errors = validate(grid, user)
-
-    ServiceResult.new(success: success,
-                      errors: errors,
-                      result: grid)
-  end
-
   def set_attributes(attributes)
-    grid.attributes = attributes
+    widget_attributes = attributes.delete(:widgets)
+
+    ret = super
+
+    update_widgets(widget_attributes)
+
+    cleanup_prohibited_widgets(widget_attributes)
+
+    ret
   end
 
   # Updates grid's widget but does not persist the changes:
@@ -84,7 +63,7 @@ class Grids::SetAttributesService
     to_destroy.each(&:mark_for_destruction)
 
     to_create.each do |widget|
-      grid.widgets.build widget.attributes.except('id')
+      model.widgets.build widget.attributes.except('id')
     end
 
     update_map.each do |existing, provided|
@@ -93,7 +72,7 @@ class Grids::SetAttributesService
   end
 
   def classify_widgets(widgets)
-    if grid.widgets.empty?
+    if model.widgets.empty?
       classify_create_all(widgets)
     else
       classify_preserve_existing(widgets)
@@ -105,7 +84,7 @@ class Grids::SetAttributesService
   end
 
   def classify_preserve_existing(widgets)
-    widget_map = grid.widgets.map { |w| [w, nil] }.to_h
+    widget_map = model.widgets.map { |w| [w, nil] }.to_h
     to_create = []
 
     widgets.each do |widget|
@@ -127,5 +106,22 @@ class Grids::SetAttributesService
     available_map_keys = widget_map.select { |_, v| v.nil? }.keys
 
     available_map_keys.find { |w| w.identifier == widget.identifier }
+  end
+
+  # Removes prohibited widgets from the grid.
+  # That way, a valid subset of the default widgets is returned e.g. in the form
+  # or on a create request without widgets.
+  # Will only work on new records and only if no widgets have been specified.
+  def cleanup_prohibited_widgets(widgets)
+    return if widgets&.any? || model.persisted?
+
+    # As it is a new record, we can do direct assignments without risking saving.
+    model.widgets = model.widgets.select(&method(:allowed_widget?))
+  end
+
+  def allowed_widget?(widget)
+    project = model.respond_to?(:project) ? model.project : nil
+
+    Grids::Configuration.allowed_widget?(model.class, widget.identifier, user, project)
   end
 end

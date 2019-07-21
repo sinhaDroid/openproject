@@ -49,7 +49,8 @@ describe ::API::V3::WorkPackages::WorkPackageRepresenter do
                              parent: parent,
                              type: type,
                              project: project,
-                             priority: priority) do |wp|
+                             priority: priority,
+                             status: status) do |wp|
       allow(wp)
         .to receive(:available_custom_fields)
         .and_return(available_custom_fields)
@@ -73,6 +74,7 @@ describe ::API::V3::WorkPackages::WorkPackageRepresenter do
   let(:permissions) { all_permissions }
   let(:project) { FactoryBot.build_stubbed(:project_with_types) }
   let(:type) { project.types.first }
+  let(:status) { FactoryBot.build_stubbed(:status, updated_at: Time.now) }
   let(:available_custom_fields) { [] }
 
   before(:each) do
@@ -338,6 +340,20 @@ describe ::API::V3::WorkPackages::WorkPackageRepresenter do
 
           it_behaves_like 'has no link' do
             let(:link) { 'updateImmediately' }
+          end
+        end
+
+        context 'user is lacks edit permission but has assign_versions' do
+          let(:permissions) { all_permissions - [:edit_work_packages] + [:assign_versions] }
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'update' }
+            let(:href) { api_v3_paths.work_package_form(work_package.id) }
+          end
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'updateImmediately' }
+            let(:href) { api_v3_paths.work_package(work_package.id) }
           end
         end
       end
@@ -954,8 +970,6 @@ describe ::API::V3::WorkPackages::WorkPackageRepresenter do
       it { is_expected.to have_json_type(Object).at_path('_embedded') }
 
       describe 'status' do
-        let(:status) { work_package.status }
-
         it { is_expected.to have_json_path('_embedded/status') }
 
         it { is_expected.to be_json_eql('Status'.to_json).at_path('_embedded/status/_type') }

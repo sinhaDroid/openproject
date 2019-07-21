@@ -49,7 +49,7 @@ module FileUploader
     file.to_file
   end
 
-  def download_url
+  def download_url(options = {})
     file.is_path? ? file.path : file.url
   end
 
@@ -58,7 +58,9 @@ module FileUploader
   end
 
   def readable?
-    file && File.readable?(local_file)
+    return false unless file && local_file
+
+    File.readable?(local_file)
   end
 
    # store! nil's the cache_id after it finishes so we need to remember it for deletion

@@ -11,7 +11,6 @@ import {CellBuilder, wpCellTdClassName} from '../cell-builder';
 import {RelationCellbuilder} from '../relation-cell-builder';
 import {checkedClassName} from '../ui-state-link-builder';
 import {TableActionRenderer} from 'core-components/wp-fast-table/builders/table-action-renderer';
-import {DragDropHandleBuilder} from "core-components/wp-fast-table/builders/drag-and-drop/drag-drop-handle-builder";
 
 // Work package table row entries
 export const tableRowClassName = 'wp-table--row';
@@ -40,9 +39,6 @@ export class SingleRowBuilder {
 
   // Details Link builder
   protected contextLinkBuilder = new TableActionRenderer(this.injector);
-
-  // Drag & Drop handle builder
-  protected dragDropHandleBuilder = new DragDropHandleBuilder();
 
   // Build the augmented columns set to render with
   protected readonly augmentedColumns:QueryColumn[] = this.buildAugmentedColumns();
@@ -80,8 +76,6 @@ export class SingleRowBuilder {
 
     // Handle property types
     switch (column.id) {
-      case internalSortColumn.id:
-        return this.dragDropHandleBuilder.build(workPackage);
       case internalContextMenuColumn.id:
         if (this.workPackageTable.configuration.actionsColumnEnabled) {
           return this.contextLinkBuilder.build(workPackage);
@@ -100,7 +94,7 @@ export class SingleRowBuilder {
   /**
    * Build the columns on the given empty row
    */
-  public buildEmpty(workPackage:WorkPackageResource):[HTMLElement, boolean] {
+  public buildEmpty(workPackage:WorkPackageResource):[HTMLTableRowElement, boolean] {
     let row = this.createEmptyRow(workPackage);
     return this.buildEmptyRow(workPackage, row);
   }
@@ -183,7 +177,7 @@ export class SingleRowBuilder {
     return form && form.activeFields[column.id];
   }
 
-  protected buildEmptyRow(workPackage:WorkPackageResource, row:HTMLElement):[HTMLElement, boolean] {
+  protected buildEmptyRow(workPackage:WorkPackageResource, row:HTMLTableRowElement):[HTMLTableRowElement, boolean] {
     const changeset = this.workPackageTable.editing.changeset(workPackage.id!);
     let cells:{ [attribute:string]:JQuery } = {};
 

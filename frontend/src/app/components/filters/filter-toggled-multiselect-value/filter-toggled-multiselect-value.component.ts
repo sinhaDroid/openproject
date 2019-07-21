@@ -32,26 +32,40 @@ import {CollectionResource} from 'core-app/modules/hal/resources/collection-reso
 import {RootResource} from 'core-app/modules/hal/resources/root-resource';
 import {QueryFilterInstanceResource} from 'core-app/modules/hal/resources/query-filter-instance-resource';
 import {RootDmService} from 'core-app/modules/hal/dm-services/root-dm.service';
-import {Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {AngularTrackingHelpers} from 'core-components/angular/tracking-functions';
 import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.service';
 import {HalResourceSortingService} from "core-app/modules/hal/services/hal-resource-sorting.service";
 import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
-import {NgSelectComponent} from "@ng-select/ng-select/dist";
+import {NgSelectComponent} from "@ng-select/ng-select";
 
 @Component({
   selector: 'filter-toggled-multiselect-value',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './filter-toggled-multiselect-value.component.html'
 })
-export class FilterToggledMultiselectValueComponent implements OnInit {
+export class FilterToggledMultiselectValueComponent implements OnInit, AfterViewInit {
+  @Input() public shouldFocus:boolean = false;
   @Input() public filter:QueryFilterInstanceResource;
   @Output() public filterChanged = new EventEmitter<QueryFilterInstanceResource>();
 
-  @ViewChild('ngSelectInstance') ngSelectInstance:NgSelectComponent;
+  @ViewChild('ngSelectInstance', { static: true }) ngSelectInstance:NgSelectComponent;
 
   public _availableOptions:HalResource[] = [];
   public compareByHrefOrString = AngularTrackingHelpers.compareByHrefOrString;
+
+  private _isEmpty:boolean;
 
   readonly text = {
     placeholder: this.I18n.t('js.placeholders.selection'),
@@ -61,6 +75,7 @@ export class FilterToggledMultiselectValueComponent implements OnInit {
               readonly halResourceService:HalResourceService,
               readonly halSorting:HalResourceSortingService,
               readonly PathHelper:PathHelperService,
+              readonly cdRef:ChangeDetectorRef,
               readonly I18n:I18nService) {
   }
 
@@ -68,13 +83,20 @@ export class FilterToggledMultiselectValueComponent implements OnInit {
     this.fetchAllowedValues();
   }
 
+  ngAfterViewInit():void {
+    if (this.ngSelectInstance && this.shouldFocus) {
+      this.ngSelectInstance.focus();
+    }
+  }
+
   public get value() {
     return this.filter.values;
   }
 
-  public set value(val:any) {
+  public setValues(val:any) {
     this.filter.values = _.castArray(val);
     this.filterChanged.emit(this.filter);
+    this.cdRef.detectChanges();
   }
 
   public get availableOptions() {
@@ -85,9 +107,13 @@ export class FilterToggledMultiselectValueComponent implements OnInit {
     this._availableOptions = this.halSorting.sort(val);
   }
 
+  public get isEmpty():boolean {
+    return this._isEmpty = this.value.length === 0;
+  }
+
   public repositionDropdown() {
-    if (this.ngSelectInstance) {
-      setTimeout(() => this.ngSelectInstance.updateDropdownPosition(), 25);
+    if (this.ngSelectInstance && this.ngSelectInstance.dropdownPanel) {
+      setTimeout(() => this.ngSelectInstance.dropdownPanel.adjustPosition(), 25);
     }
   }
 

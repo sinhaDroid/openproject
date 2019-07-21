@@ -47,7 +47,8 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
                       permissions: %i[view_work_packages
                                       add_work_packages
                                       manage_work_package_relations
-                                      edit_work_packages])
+                                      edit_work_packages
+                                      assign_versions])
   end
   let(:type) { FactoryBot.create(:type) }
   let(:project) { FactoryBot.create(:project, types: [type]) }
@@ -117,8 +118,8 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
                                         Description: 'Copied WP Description',
                                         Version: original_work_package.fixed_version,
                                         Priority: original_work_package.priority,
-                                        Assignee: original_work_package.assigned_to,
-                                        Responsible: original_work_package.responsible
+                                        Assignee: original_work_package.assigned_to.name,
+                                        Responsible: original_work_package.responsible.name
 
     work_package_page.expect_activity user, number: 1
     work_package_page.expect_current_path
@@ -127,6 +128,24 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
     expect_angular_frontend_initialized
     expect(page).to have_selector('.relation-group--header', text: 'RELATED TO', wait: 20)
     expect(page).to have_selector('.wp-relations--subject-field', text: original_work_package.subject)
+  end
+
+  describe 'when source work package has an attachment' do
+    it 'still allows copying through menu (Regression #30518)' do
+      wp_page = Pages::FullWorkPackage.new(original_work_package, project)
+      wp_page.visit!
+      wp_page.ensure_page_loaded
+
+      # Go to add cost entry page
+      find('#action-show-more-dropdown-menu .button').click
+      find('.menu-item', text: 'Copy').click
+
+      to_copy_work_package_page = Pages::FullWorkPackageCreate.new original_work_package: original_work_package
+      to_copy_work_package_page.update_attributes Description: 'Copied WP Description'
+      to_copy_work_package_page.save!
+
+      to_copy_work_package_page.expect_and_dismiss_notification message: I18n.t('js.notice_successful_create')
+    end
   end
 
   scenario 'on split screen page' do

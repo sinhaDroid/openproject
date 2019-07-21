@@ -1,7 +1,12 @@
-<h3 class="widget-box--header" cdkDragHandle>
-  <i class="icon-context icon-notes" aria-hidden="true"></i>
-  <span class="widget-box--header-title" [textContent]="text.title"></span>
-</h3>
+<widget-header
+    [name]="widgetName"
+    [icon]="'notes'"
+    (onRenamed)="renameWidget($event)">
+
+  <widget-menu
+      [resource]="resource">
+  </widget-menu>
+</widget-header>
 
 <div class="grid--widget-content">
   <no-results *ngIf="noEntries"

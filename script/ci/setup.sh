@@ -33,8 +33,7 @@ set -e
 # script/ci/setup.sh
 
 # $1 = TEST_SUITE
-# $2 = DB
-# $3 = OPENPROJECT_EDITION
+# $2 = OPENPROJECT_EDITION
 
 run() {
   echo $1;
@@ -44,17 +43,10 @@ run() {
   eval $2;
 }
 
-if [ $2 = "mysql" ]; then
-  run "mysql -u root -e \"CREATE DATABASE IF NOT EXISTS travis_ci_test DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';\""
-  run "mysql -u root -e \"GRANT ALL ON travis_ci_test.* TO 'travis'@'localhost';\""
-  run "cp script/templates/database.travis.mysql.yml config/database.yml"
-elif [ $2 = "postgres" ]; then
-  run "psql -c 'create database travis_ci_test;' -U postgres"
-  run "cp script/templates/database.travis.postgres.yml config/database.yml"
-fi
+run "bash $(dirname $0)/db_setup.sh"
 
-if [ "$3" = "bim" ]; then
-  export OPENPROJECT_EDITION="$3";
+if [ "$2" = "bim" ]; then
+  export OPENPROJECT_EDITION="$2";
 else
   unset OPENPROJECT_EDITION
 fi
@@ -73,6 +65,15 @@ if [ $1 = 'units' ]; then
   # Install pandoc for testing textile migration
   run "sudo apt-get update -qq"
   run "sudo apt-get install -qq pandoc"
+fi
+
+if [ ! -f "public/assets/frontend_assets.manifest.json" ]; then
+  if [ -z "${RECOMPILE_ON_TRAVIS_CACHE_ERROR}" ]; then
+    echo "ERROR: asset manifest was not properly cached. exiting"
+    exit 1
+  else
+    run "bash $(dirname $0)/cache_prepare.sh"
+  fi
 fi
 
 run "cp -rp public/assets/frontend_assets.manifest.json config/frontend_assets.manifest.json"

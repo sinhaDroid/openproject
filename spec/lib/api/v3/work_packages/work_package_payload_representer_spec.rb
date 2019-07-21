@@ -45,7 +45,11 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
   end
 
   let(:user) do
-    FactoryBot.build_stubbed(:user)
+    FactoryBot.build_stubbed(:user) do |u|
+      allow(u)
+        .to receive(:allowed_to?)
+        .and_return(true)
+    end
   end
 
   let(:representer) do
@@ -56,7 +60,9 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
   let(:available_custom_fields) { [] }
 
   before do
-    allow(work_package).to receive(:lock_version).and_return(1)
+    allow(work_package)
+      .to receive(:lock_version)
+      .and_return(1)
   end
 
   context 'generation' do
@@ -305,12 +311,12 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
       end
 
       describe 'assignee and responsible' do
-        let(:user) { FactoryBot.build_stubbed(:user) }
-        let(:link) { "/api/v3/users/#{user.id}" }
+        let(:other_user) { FactoryBot.build_stubbed(:user) }
+        let(:link) { "/api/v3/users/#{other_user.id}" }
 
         describe 'assignee' do
           before do
-            work_package.assigned_to = user
+            work_package.assigned_to = other_user
           end
 
           it_behaves_like 'linked property' do
@@ -322,7 +328,7 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
 
         describe 'responsible' do
           before do
-            work_package.responsible = user
+            work_package.responsible = other_user
           end
 
           it_behaves_like 'linked property' do
@@ -431,6 +437,9 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
       copy[:_links] = links
       copy.to_json
     end
+    let(:work_package) do
+      OpenStruct.new available_custom_fields: available_custom_fields
+    end
 
     subject { representer.from_json(json) }
 
@@ -493,6 +502,9 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
         allow(work_package)
           .to receive(:milestone?)
           .and_return(true)
+
+        # Setting values to ensure they are later set to nil in one of the test cases
+        work_package.start_date = work_package.due_date = Date.today
       end
 
       it_behaves_like 'settable ISO 8601 date only' do
@@ -513,7 +525,7 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
     shared_examples_for 'linked resource' do
       let(:path) { api_v3_paths.send(attribute_name, id) }
       let(:association_name) { attribute_name + '_id' }
-      let(:id) { work_package.send(association_name) + 1 }
+      let(:id) { work_package.send(association_name).to_i + 1 }
       let(:links) do
         { attribute_name => href }
       end
@@ -523,7 +535,7 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
         let(:href) { { href: path } }
 
         it 'sets attribute to the specified id' do
-          expect(representer_attribute).to eql(id)
+          expect(representer_attribute.to_i).to eql(id)
         end
       end
 

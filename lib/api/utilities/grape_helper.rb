@@ -56,7 +56,7 @@ module API
           if error.nil?
             error_response_lambda
           else
-            lambda { instance_exec error.new, &error_response_lambda }
+            lambda { |e| instance_exec error.new(e.message), &error_response_lambda }
           end
 
         # We do this lambda business because #rescue_from behaves differently
@@ -71,25 +71,7 @@ module API
           resp_headers = instance_exec &headers
           env['api.format'] = 'hal+json'
 
-          if log
-            message = <<-MESSAGE
-  Grape rescuing from error: #{e}
-
-  Original error: #{original_exception.inspect}
-
-  Stacktrace:
-            MESSAGE
-
-            OpenProject.logger.clean_backtrace(original_exception).each do |line|
-              message << "\n    #{line}"
-            end
-
-            OpenProject.logger.error(
-              message,
-              exception: original_exception,
-              reference: :APIv3
-            )
-          end
+          OpenProject.logger.error original_exception, reference: :APIv3 if log
 
           error_response status: e.code, message: representer.to_json, headers: resp_headers
         }

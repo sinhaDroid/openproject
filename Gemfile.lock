@@ -26,8 +26,8 @@ GIT
 
 GIT
   remote: https://github.com/finnlabs/omniauth-openid_connect-providers.git
-  revision: 552205c402b921689552532b4591737dc030625b
-  ref: 552205c402b921689552532b4591737dc030625b
+  revision: 1d65afd2cbb0ff9cd294a764a4387e0fb36c92f4
+  ref: 1d65afd2cbb0ff9cd294a764a4387e0fb36c92f4
   specs:
     omniauth-openid_connect-providers (0.1.1)
       omniauth-openid-connect (>= 0.2.1)
@@ -58,7 +58,7 @@ GIT
 
 GIT
   remote: https://github.com/opf/openproject-translations.git
-  revision: 03086ece9d9c745d41c4af0bb236f5b15d58a19f
+  revision: 35c677f634a56249921ddc79fca47b2e3c349d05
   branch: dev
   specs:
     openproject-translations (7.4.0)
@@ -113,7 +113,7 @@ PATH
   remote: modules/backlogs
   specs:
     openproject-backlogs (1.0.0)
-      acts_as_silent_list (~> 3.0.0)
+      acts_as_list (~> 0.9.18)
       openproject-pdf_export
 
 PATH
@@ -139,6 +139,12 @@ PATH
   remote: modules/costs
   specs:
     openproject-costs (1.0.0)
+
+PATH
+  remote: modules/dashboards
+  specs:
+    dashboards (1.0.0)
+      grids
 
 PATH
   remote: modules/documents
@@ -293,9 +299,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    acts_as_list (0.9.11)
+    acts_as_list (0.9.19)
       activerecord (>= 3.0)
-    acts_as_silent_list (3.0.0)
     acts_as_tree (2.8.0)
       activerecord (>= 3.0.0)
     addressable (2.6.0)
@@ -578,7 +583,6 @@ GEM
     mustermann (1.0.3)
     mustermann-grape (1.0.0)
       mustermann (~> 1.0.0)
-    mysql2 (0.5.2)
     net-ldap (0.16.1)
     netrc (0.11.0)
     newrelic_rpm (6.0.0.351)
@@ -649,9 +653,8 @@ GEM
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
     public_suffix (3.0.3)
-    puma (3.12.0)
-    rabl (0.14.0)
-      activesupport (>= 2.3.14)
+    puma (4.0.0)
+      nio4r (~> 2.0)
     rack (2.0.6)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -926,6 +929,7 @@ DEPENDENCIES
   cucumber-rails (~> 1.6.0)
   daemons
   dalli!
+  dashboards!
   database_cleaner (~> 1.6)
   date_validator (~> 0.9.0)
   delayed_job_active_record (~> 4.1.1)
@@ -954,7 +958,6 @@ DEPENDENCIES
   meta-tags (~> 2.11.0)
   multi_json (~> 1.13.1)
   my_page!
-  mysql2 (~> 0.5.0)
   net-ldap (~> 0.16.0)
   newrelic_rpm
   nokogiri (~> 1.10.3)
@@ -997,8 +1000,7 @@ DEPENDENCIES
   pry-rails (~> 0.3.6)
   pry-rescue (~> 1.5.0)
   pry-stack_explorer (~> 0.4.9.2)
-  puma (~> 3.12.0)
-  rabl (~> 0.14.0)
+  puma (~> 4.0.0)
   rack-attack (~> 5.4.2)
   rack-mini-profiler
   rack-protection (~> 2.0.0)

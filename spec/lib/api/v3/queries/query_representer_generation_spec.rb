@@ -79,10 +79,24 @@ describe ::API::V3::Queries::QueryRepresenter do
 
   describe 'generation' do
     describe '_links' do
-      it_behaves_like 'has a titled link' do
-        let(:link) { 'self' }
-        let(:href) { api_v3_paths.query query.id }
-        let(:title) { query.name }
+      context 'self' do
+        it_behaves_like 'has a titled link' do
+          let(:link) { 'self' }
+          let(:href) { api_v3_paths.query(query.id) }
+          let(:title) { query.name }
+        end
+
+        context 'with params' do
+          let(:representer) do
+            described_class.new(query, current_user: user, embed_links: embed_links, params: { "filters" => "something", "id" => "234" })
+          end
+
+          it_behaves_like 'has a titled link' do
+            let(:link) { 'self' }
+            let(:href) { "#{api_v3_paths.query(query.id)}?filters=something" }
+            let(:title) { query.name }
+          end
+        end
       end
 
       it_behaves_like 'has a titled link' do
@@ -252,6 +266,51 @@ describe ::API::V3::Queries::QueryRepresenter do
 
           it_behaves_like 'has no link' do
             let(:link) { 'updateImmediately' }
+          end
+        end
+      end
+
+      describe 'updateOrderedWorkPackages action link' do
+        let(:permissions) { %i[update reorder_work_packages] }
+
+        it_behaves_like 'has an untitled link' do
+          let(:link) { 'updateOrderedWorkPackages' }
+          let(:href) { api_v3_paths.query query.id }
+        end
+
+        context 'when not persisted and lacking permission' do
+          let(:query) { FactoryBot.build(:query, project: project) }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'updateOrderedWorkPackages' }
+          end
+        end
+
+        context 'when not persisted and having permission' do
+          let(:permissions) { [:create] }
+
+          let(:query) { FactoryBot.build(:query, project: project) }
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'updateOrderedWorkPackages' }
+            let(:href) { api_v3_paths.query query.id }
+          end
+        end
+
+        context 'when not allowed to update' do
+          let(:permissions) { [] }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'updateOrderedWorkPackages' }
+          end
+        end
+
+        context 'when no user is provided' do
+          let(:user) { nil }
+          let(:embed_links) { false }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'updateOrderedWorkPackages' }
           end
         end
       end
@@ -518,6 +577,16 @@ describe ::API::V3::Queries::QueryRepresenter do
         end
       end
 
+      it_behaves_like 'has UTC ISO 8601 date and time' do
+        let(:date) { query.created_at }
+        let(:json_path) { 'createdAt' }
+      end
+
+      it_behaves_like 'has UTC ISO 8601 date and time' do
+        let(:date) { query.updated_at }
+        let(:json_path) { 'updatedAt' }
+      end
+
       describe 'highlighting' do
         context 'with EE', with_ee: %i[conditional_highlighting] do
           it 'renders when the value is set' do
@@ -571,7 +640,7 @@ describe ::API::V3::Queries::QueryRepresenter do
             end
 
             let(:highlighted_attributes) do
-              [status, type, priority, due_date]
+              [status, priority, due_date]
             end
 
             it 'links an array of highlighted attributes' do

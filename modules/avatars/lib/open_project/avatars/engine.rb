@@ -30,7 +30,8 @@ module OpenProject::Avatars
                  enable_gravatars: true,
                  enable_local_avatars: true
                },
-               partial: 'settings/openproject_avatars'
+               partial: 'settings/openproject_avatars',
+               menu_item: :user_avatars
              },
              bundled: true do
 
@@ -43,6 +44,10 @@ module OpenProject::Avatars
 
     config.to_prepare do
       require_dependency 'project'
+    end
+
+    add_api_endpoint 'API::V3::Users::UsersAPI', :id do
+      mount ::API::V3::Users::UserAvatarAPI
     end
 
     add_tab_entry :user,

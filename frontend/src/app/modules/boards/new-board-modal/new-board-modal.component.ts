@@ -43,7 +43,7 @@ import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notific
   templateUrl: './new-board-modal.html'
 })
 export class NewBoardModalComponent extends OpModalComponent {
-  @ViewChild('actionAttributeSelect') actionAttributeSelect:ElementRef;
+  @ViewChild('actionAttributeSelect', { static: true }) actionAttributeSelect:ElementRef;
 
   public showClose:boolean = true;
 
@@ -84,7 +84,7 @@ export class NewBoardModalComponent extends OpModalComponent {
   }
 
   createAction() {
-    this.create({ type: 'action', attribute: this.available[0].attribute });
+    this.create({ type: 'action', attribute: this.actionAttributeSelect.nativeElement.value! });
   }
 
   private create(params:{ type:BoardType, attribute?:string }) {

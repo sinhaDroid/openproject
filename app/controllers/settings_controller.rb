@@ -29,9 +29,19 @@
 
 class SettingsController < ApplicationController
   layout 'admin'
-  menu_item :settings
 
   before_action :require_admin
+
+  current_menu_item [:index, :edit] do
+    :settings
+  end
+
+  current_menu_item :plugin do |controller|
+    plugin = Redmine::Plugin.find(controller.params[:id])
+    plugin.settings[:menu_item] || :settings
+  rescue Redmine::PluginNotFound
+    :settings
+  end
 
   def index
     edit
@@ -41,17 +51,9 @@ class SettingsController < ApplicationController
   def edit
     @notifiables = Redmine::Notifiable.all
     if request.post? && params[:settings]
-      permitted_params.settings.to_h.each do |name, value|
-        if value.is_a?(Array)
-          # remove blank values in array settings
-          value.delete_if(&:blank?)
-        elsif value.is_a?(Hash)
-          value.delete_if { |_, v| v.blank? }
-        else
-          value = value.strip
-        end
-        Setting[name] = value
-      end
+      Settings::UpdateService
+        .new(user: current_user)
+        .call(settings: permitted_params.settings.to_h)
 
       flash[:notice] = l(:notice_successful_update)
       redirect_to action: 'edit', tab: params[:tab]

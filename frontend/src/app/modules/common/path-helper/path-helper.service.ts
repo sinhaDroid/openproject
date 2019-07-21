@@ -134,6 +134,10 @@ export class PathHelperService {
     }
   }
 
+  public projectDashboardsPath(projectIdentifier:string) {
+    return this.projectPath(projectIdentifier) + '/dashboards';
+  }
+
   public timeEntriesPath(workPackageId:string|number) {
     var suffix = '/time_entries';
 
@@ -162,6 +166,14 @@ export class PathHelperService {
 
   public versionsPath() {
     return this.staticBase + '/versions';
+  }
+
+  public versionEditPath(id:string|number) {
+    return this.staticBase + '/versions/' + id + '/edit';
+  }
+
+  public versionShowPath(id:string|number) {
+    return this.staticBase + '/versions/' + id;
   }
 
   public workPackagesPath() {

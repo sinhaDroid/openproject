@@ -149,4 +149,41 @@ RSpec.feature 'Work package navigation', js: true, selenium: true do
     expect(page).to have_selector('.errorExplanation',
                                   text: I18n.t('notice_not_authorized'))
   end
+
+  # Regression #29994
+  scenario 'access the work package views directly from a non-angular view' do
+    visit project_path(project)
+
+    find('#main-menu-work-packages ~ .toggler').click
+    expect(page).to have_selector('.wp-query-menu--search-ul')
+    find('.wp-query-menu--item-link', text: query.name).click
+
+    expect(page).not_to have_selector('.title-container', text: 'Overview')
+    page.should have_field('editable-toolbar-title', with: query.name)
+  end
+
+  scenario 'double clicking search result row (Regression #30247)' do
+    work_package.subject = 'Foobar'
+    work_package.save!
+    visit search_path(q: 'Foo', work_packages: 1, scope: :all)
+
+    table = ::Pages::EmbeddedWorkPackagesTable.new page.find('#content')
+    table.expect_work_package_listed work_package
+    full_page = table.open_full_screen_by_doubleclick work_package
+
+    full_page.ensure_page_loaded
+  end
+
+  scenario 'double clicking my page (Regression #30343)' do
+    work_package.author = user
+    work_package.subject = 'Foobar'
+    work_package.save!
+
+    visit my_page_path
+
+    page.find('.wp-table--cell-td.id a', text: work_package.id).click
+
+    full_page = ::Pages::FullWorkPackage.new work_package, work_package.project
+    full_page.ensure_page_loaded
+  end
 end

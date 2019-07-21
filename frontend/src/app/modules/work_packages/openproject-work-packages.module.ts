@@ -29,8 +29,6 @@
 import {OpenprojectCommonModule} from 'core-app/modules/common/openproject-common.module';
 import {WorkPackageFormAttributeGroupComponent} from 'core-components/wp-form-group/wp-attribute-group.component';
 import {OpenprojectFieldsModule} from 'core-app/modules/fields/openproject-fields.module';
-import {ChartsModule} from 'ng2-charts';
-import {DynamicModule} from 'ng-dynamic-component';
 import {APP_INITIALIZER, Injector, NgModule} from '@angular/core';
 import {
   GroupDescriptor,
@@ -44,7 +42,6 @@ import {WorkPackageTablePaginationComponent} from 'core-components/wp-table/tabl
 import {WpResizerDirective} from 'core-components/resizer/wp-resizer.component';
 import {WorkPackageTimelineTableController} from 'core-components/wp-table/timeline/container/wp-timeline-container.directive';
 import {WorkPackageInlineCreateComponent} from 'core-components/wp-inline-create/wp-inline-create.component';
-import {WpRelationsAutocompleteComponent} from 'core-components/wp-relations/wp-relations-create/wp-relations-autocomplete/wp-relations-autocomplete.upgraded.component';
 import {OpTypesContextMenuDirective} from 'core-components/op-context-menu/handlers/op-types-context-menu.directive';
 import {OpColumnsContextMenu} from 'core-components/op-context-menu/handlers/op-columns-context-menu.directive';
 import {OpSettingsMenuDirective} from 'core-components/op-context-menu/handlers/op-settings-dropdown-menu.directive';
@@ -121,8 +118,6 @@ import {QuerySharingModal} from 'core-components/modals/share-modal/query-sharin
 import {SaveQueryModal} from 'core-components/modals/save-modal/save-query.modal';
 import {WpDestroyModal} from 'core-components/modals/wp-destroy-modal/wp-destroy.modal';
 import {QuerySharingForm} from 'core-components/modals/share-modal/query-sharing-form.component';
-import {WorkPackageEmbeddedGraphComponent} from 'core-components/wp-table/embedded/wp-embedded-graph.component';
-import {WorkPackageByVersionGraphComponent} from 'core-components/wp-by-version-graph/wp-by-version-graph.component';
 import {EmbeddedTablesMacroComponent} from 'core-components/wp-table/embedded/embedded-tables-macro.component';
 import {WpButtonMacroModal} from 'core-components/modals/editor/macro-wp-button-modal/wp-button-macro.modal';
 import {OpenprojectEditorModule} from 'core-app/modules/editor/openproject-editor.module';
@@ -156,8 +151,11 @@ import {WorkPackageCardViewComponent} from "core-components/wp-card-view/wp-card
 import {WorkPackageIsolatedQuerySpaceDirective} from "core-app/modules/work_packages/query-space/wp-isolated-query-space.directive";
 import {WorkPackageDmService} from "core-app/modules/hal/dm-services/work-package-dm.service";
 import {WorkPackageRelationsService} from "core-components/wp-relations/wp-relations.service";
-import {BcfWpSingleViewComponent} from "core-app/modules/bcf/bcf-wp-single-view/bcf-wp-single-view.component";
 import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module";
+import {WorkPackageRelationsAutocomplete} from "core-components/wp-relations/wp-relations-create/wp-relations-autocomplete/wp-relations-autocomplete.component";
+import {CustomDateActionAdminComponent} from 'core-components/wp-custom-actions/date-action/custom-date-action-admin.component';
+import {WorkPackagesTableConfigMenu} from "core-components/wp-table/config-menu/config-menu.component";
+import {WorkPackageIsolatedGraphQuerySpaceDirective} from "core-app/modules/work_packages/query-space/wp-isolated-graph-query-space.directive";
 
 @NgModule({
   imports: [
@@ -168,15 +166,12 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
     // CKEditor
     OpenprojectEditorModule,
 
-    ChartsModule,
-
     OpenprojectAttachmentsModule,
 
     OpenprojectBcfModule,
 
     // Work package custom actions
     //WpCustomActionsModule,
-    DynamicModule.withComponents([WorkPackageFormAttributeGroupComponent, WorkPackageChildrenQueryComponent])
   ],
   providers: [
     {
@@ -218,6 +213,7 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
 
     // Query injector isolation
     WorkPackageIsolatedQuerySpaceDirective,
+    WorkPackageIsolatedGraphQuerySpaceDirective,
 
     // WP New
     WorkPackageNewFullViewComponent,
@@ -241,6 +237,7 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
     WpRelationInlineAddExistingComponent,
 
     WorkPackagesTableController,
+    WorkPackagesTableConfigMenu,
     WorkPackageTablePaginationComponent,
 
     WpResizerDirective,
@@ -316,7 +313,7 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
     WorkPackageRelationRowComponent,
     WorkPackageRelationsCreateComponent,
     WorkPackageRelationsHierarchyComponent,
-    WpRelationsAutocompleteComponent,
+    WorkPackageRelationsAutocomplete,
     WorkPackageBreadcrumbParentComponent,
 
     // Split view
@@ -351,11 +348,7 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
     // CustomActions
     WpCustomActionComponent,
     WpCustomActionsComponent,
-
-    // Embedded graphs
-    WorkPackageEmbeddedGraphComponent,
-    // Work package graphs on version page
-    WorkPackageByVersionGraphComponent,
+    CustomDateActionAdminComponent,
 
     // CKEditor macros which could not be included in the
     // editor module to avoid circular dependencies
@@ -408,9 +401,6 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
 
     WorkPackagesTableController,
 
-    // Work package graphs on version page
-    WorkPackageByVersionGraphComponent,
-
     // Modals
     WpTableConfigurationModalComponent,
     WpTableConfigurationRelationSelectorComponent,
@@ -438,6 +428,8 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
 
     // Card view
     WorkPackageCardViewComponent,
+
+    CustomDateActionAdminComponent,
   ],
   exports: [
     WorkPackagesTableController,
@@ -448,6 +440,12 @@ import {OpenprojectBcfModule} from "core-app/modules/bcf/openproject-bcf.module"
     WorkPackageFilterButtonComponent,
     WorkPackageFilterContainerComponent,
     WorkPackageIsolatedQuerySpaceDirective,
+    WorkPackageIsolatedGraphQuerySpaceDirective,
+    QueryFiltersComponent,
+
+    // Modals
+    WpTableConfigurationModalComponent,
+    WpTableConfigurationFiltersTab,
   ]
 })
 export class OpenprojectWorkPackagesModule {

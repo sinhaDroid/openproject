@@ -28,6 +28,7 @@
 #++
 
 require_relative 'configuration/helpers'
+require_relative 'configuration/asset_host'
 
 module OpenProject
   module Configuration
@@ -68,6 +69,8 @@ module OpenProject
       'rails_relative_url_root' => '',
       'rails_force_ssl' => false,
       'rails_asset_host' => nil,
+      # Enable internal asset server
+      'enable_internal_assets_server' => false,
 
       # Additional / overridden help links
       'force_help_link'         => nil,
@@ -144,9 +147,15 @@ module OpenProject
       # Check for missing migrations in internal errors
       'migration_check_on_exceptions' => true,
 
+      # Show pending migrations as warning bar
+      'show_pending_migrations_warning' => true,
+
       # Render warning bars (pending migrations, deprecation, unsupported browsers)
       # Set to false to globally disable this for all users!
-      'show_warning_bars' => true
+      'show_warning_bars' => true,
+
+      # Render storage information
+      'show_storage_information' => true
     }
 
     @config = nil

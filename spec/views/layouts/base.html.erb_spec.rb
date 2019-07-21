@@ -142,7 +142,7 @@ describe 'layouts/base', type: :view do
 
     it 'renders apple icons' do
       expect(rendered).to have_selector(
-        "link[type='image/png'][href='/assets/apple-touch-icon-120x120.png']",
+        "link[type='image/png'][href*='/assets/apple-touch-icon-120x120.png']",
         visible: false
       )
     end
@@ -160,6 +160,21 @@ describe 'layouts/base', type: :view do
 
       visit 'apple-touch-icon-120x120.png'
       expect(page.status_code).to eq(200)
+    end
+  end
+
+  describe "highlighting styles", with_config: { rails_asset_host: "foo.bar.com" } do
+    let(:current_user) { anonymous }
+
+    before do
+      allow(FrontendAssetHelper).to receive(:assets_proxied?).and_return(false)
+
+      render
+    end
+
+    it "will be referenced without the asset host" do
+      expect(rendered).to include('href="http://foo.bar.com/assets/')
+      expect(rendered).to include('href="/highlighting/styles/')
     end
   end
 

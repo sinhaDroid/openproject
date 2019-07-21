@@ -47,6 +47,7 @@ import {Injectable} from '@angular/core';
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.service';
 import {RelationResource} from 'core-app/modules/hal/resources/relation-resource';
+import {WorkPackageTableHierarchies} from "core-components/wp-fast-table/wp-table-hierarchies";
 
 export type RelationColumnType = 'toType'|'ofType';
 
@@ -60,12 +61,10 @@ export class WorkPackageTableRelationColumnsService extends WorkPackageTableBase
     super(querySpace);
   }
 
-  public get state():InputState<WorkPackageTableRelationColumns> {
-    return this.querySpace.relationColumns;
-  }
-
   public valueFromQuery(query:QueryResource):WorkPackageTableRelationColumns {
-    return {};
+    // Take over current expanded values
+    // which are not yet saved
+    return this.current;
   }
 
   /**
@@ -78,7 +77,7 @@ export class WorkPackageTableRelationColumnsService extends WorkPackageTableBase
                               relations:RelationsStateValue|undefined,
                               eachCallback:(relation:RelationResource, column:QueryColumn, type:RelationColumnType) => void) {
     // Only if any relation columns or stored expansion state exist
-    if (!this.wpTableColumns.hasRelationColumns() || this.state.isPristine()) {
+    if (!(this.wpTableColumns.hasRelationColumns() && this.lastUpdatedState.hasValue())) {
       return;
     }
 
@@ -156,24 +155,21 @@ export class WorkPackageTableRelationColumnsService extends WorkPackageTableBase
   }
 
   public setExpandFor(workPackageId:string, columnId:string) {
-    this.state.doModify((value) => {
-      const update = { ...value };
-      update[workPackageId] = columnId;
-      return update;
-    });
+    const nextState = { ...this.current };
+    nextState[workPackageId] = columnId;
+
+    this.update(nextState);
   }
 
   public collapse(workPackageId:string) {
-    this.state.doModify((value:WorkPackageTableRelationColumns) => {
-      let update = {...value};
-      delete update[workPackageId];
+    const nextState = { ...this.current };
+    delete nextState[workPackageId];
 
-      return update;
-    });
+    this.update(nextState);
   }
 
   public get current():WorkPackageTableRelationColumns {
-    return this.state.getValueOr({});
+    return this.lastUpdatedState.getValueOr({});
   }
 }
 

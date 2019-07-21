@@ -33,14 +33,9 @@ module API
     module Users
       class UserRepresenter < ::API::V3::Principals::PrincipalRepresenter
         include AvatarHelper
-        ##
-        # Dependencies required to cache users with avatars
-        # Extended by plugin
-        def self.avatar_cache_dependencies
-          []
-        end
 
-        cached_representer key_parts: %i(auth_source), dependencies: ->(*) { avatar_cache_dependencies }
+        cached_representer key_parts: %i(auth_source),
+                           dependencies: ->(*) { avatar_cache_dependencies }
 
         def self.create(user, current_user:)
           new(user, current_user: current_user)
@@ -71,6 +66,7 @@ module API
         link :lock,
              cache_if: -> { current_user_is_admin } do
           next unless represented.lockable?
+
           {
             href: api_v3_paths.user_lock(represented.id),
             title: "Set lock on #{represented.login}",
@@ -81,6 +77,7 @@ module API
         link :unlock,
              cache_if: -> { current_user_is_admin } do
           next unless represented.activatable?
+
           {
             href: api_v3_paths.user_lock(represented.id),
             title: "Remove lock on #{represented.login}",
@@ -213,6 +210,15 @@ module API
 
         def current_user_can_delete_represented?
           current_user && ::Users::DeleteService.deletion_allowed?(represented, current_user)
+        end
+
+        private
+
+        ##
+        # Dependencies required to cache users with avatars
+        # Extended by plugin
+        def avatar_cache_dependencies
+          []
         end
       end
     end

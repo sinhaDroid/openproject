@@ -42,7 +42,7 @@ import {NotificationsService} from "core-app/modules/common/notifications/notifi
 export class AttachmentsUploadComponent implements OnInit {
   @Input() public resource:HalResource;
 
-  @ViewChild('hiddenFileInput') public filePicker:ElementRef;
+  @ViewChild('hiddenFileInput', { static: false }) public filePicker:ElementRef;
 
   public draggingOver:boolean = false;
   public text:any;
@@ -156,8 +156,8 @@ export class AttachmentsUploadComponent implements OnInit {
       }
 
       // Files however MAY have no mime type as well
-      // so fall back to checking zero or multitudes of 4096:
-      if ((file.size % 4096) === 0) {
+      // so fall back to checking zero or 4096 bytes
+      if (file.size === 0 || file.size === 4096) {
         console.warn(`Skipping file because of file size (${file.size}) %O`, file);
         return false;
       }

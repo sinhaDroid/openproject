@@ -72,6 +72,10 @@ div.wiki
     margin-left: 0
     display: table
     font-size: $wiki-toc-ul-font-size
+
+    .section-nav
+      margin-bottom: 0
+      margin-left: 12px
     &.right
       float: right
       margin-left: 12px
@@ -107,8 +111,10 @@ div.wiki
 
 a.wiki-anchor
   display: none
-  margin-left: 6px
   text-decoration: none
+  font-size: 16px
+  vertical-align: middle
+  padding-right: 2px
 
   &:hover
     color: #aaa !important
@@ -123,14 +129,6 @@ h1:hover, h2:hover, h3:hover
   p
     margin-bottom: 1em
     font-size: $wiki_default-font-size
-
-  p, span
-    &.see-also, &.caution, &.important, &.info, &.tip, &.note
-      display: block
-      margin-top: .5em
-      margin-bottom: .5em
-      padding: 4px 4px 4px 48px
-      min-height: 33px
 
   .quick_info .label
     background: none

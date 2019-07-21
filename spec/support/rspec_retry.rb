@@ -29,18 +29,26 @@ end
 ##
 # Allow specific code blocks to retry on specific errors
 Retriable.configure do |c|
-  c.intervals = [1, 2, 5, 5]
+  c.intervals = [1, 1, 2]
 end
 
 ##
 # Helper to pass options to retriable while logging
 # failures
-def retry_block(args: {}, &block)
+def retry_block(args: {}, screenshot: false, &block)
   log_errors = Proc.new do |exception, try, elapsed_time, next_interval|
     $stderr.puts <<-EOS.strip_heredoc
     #{exception.class}: '#{exception.message}'
     #{try} tries in #{elapsed_time} seconds and #{next_interval} seconds until the next try.
     EOS
+
+    if screenshot
+      begin
+        Capybara::Screenshot.screenshot_and_save_page
+      rescue StandardError => e
+        $stderr.puts "Failed to take screenshot in retry_block: #{e} #{e.message}"
+      end
+    end
   end
 
   Retriable.retriable(args.merge(on_retry: log_errors), &block)

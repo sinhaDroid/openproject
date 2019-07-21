@@ -91,6 +91,24 @@ describe 'edit work package', js: true do
     end
   end
 
+  context 'as an admin without roles' do
+    let(:visit_before) { false }
+    let(:work_package) { FactoryBot.create(:work_package, project: project, type: type2) }
+    let(:admin) { FactoryBot.create :admin }
+
+    it 'can still use the manager role' do
+      # A role must still exist
+      workflow
+      login_as admin
+      visit!
+
+      wp_page.update_attributes status: status2.name
+      wp_page.expect_attributes status: status2.name
+
+      wp_page.expect_activity_message("Status changed from #{status.name}\nto #{status2.name}")
+    end
+  end
+
   context 'with progress' do
     let(:visit_before) { false }
 
@@ -225,15 +243,27 @@ describe 'edit work package', js: true do
                                 type: 'error'
   end
 
-  it 'submits the edit mode when pressing enter' do
-    subject_field = wp_page.edit_field(:subject)
+  context 'submitting' do
+    let(:subject_field) { wp_page.edit_field(:subject) }
+    before do
+      subject_field.activate!
+      subject_field.set_value 'My new subject!'
+    end
 
-    subject_field.activate!
-    subject_field.set_value 'My new subject!'
-    subject_field.input_element.send_keys(:return)
+    it 'submits the edit mode when pressing enter' do
+      subject_field.input_element.send_keys(:return)
 
-    wp_page.expect_notification(message: 'Successful update')
-    subject_field.expect_inactive!
-    subject_field.expect_state_text 'My new subject!'
+      wp_page.expect_notification(message: 'Successful update')
+      subject_field.expect_inactive!
+      subject_field.expect_state_text 'My new subject!'
+    end
+
+    it 'submits the edit mode when changing the focus' do
+      page.find("body").click
+
+      wp_page.expect_notification(message: 'Successful update')
+      subject_field.expect_inactive!
+      subject_field.expect_state_text 'My new subject!'
+    end
   end
 end

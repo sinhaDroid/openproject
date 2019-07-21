@@ -52,11 +52,12 @@ const ADD_FILTER_SELECT_INDEX = -1;
 
 @Component({
   selector: 'query-filters',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './query-filters.component.html'
 })
 export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
 
-  @ViewChild(NgSelectComponent) public ngSelectComponent:NgSelectComponent;
+  @ViewChild(NgSelectComponent, { static: false }) public ngSelectComponent:NgSelectComponent;
   @Input() public filters:QueryFilterInstanceResource[];
   @Input() public showCloseFilter:boolean = false;
   @Output() public filtersChanged = new DebouncedEventEmitter<QueryFilterInstanceResource[]>(componentDestroyed(this));
@@ -65,7 +66,7 @@ export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
   public remainingFilters:any[] = [];
   public eeShowBanners:boolean = false;
   public focusElementIndex:number = 0;
-  public compareByName = AngularTrackingHelpers.trackByName;
+  public trackByName = AngularTrackingHelpers.trackByName;
 
   public text = {
     open_filter: this.I18n.t('js.filter.description.text_open_filter'),
@@ -124,9 +125,7 @@ export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
     let index = this.filters.indexOf(removedFilter);
     _.remove(this.filters, f => f.id === removedFilter.id);
 
-    if (removedFilter.isCompletelyDefined()) {
-      this.filtersChanged.emit(this.filters);
-    }
+    this.filtersChanged.emit(this.filters);
 
     this.updateFilterFocus(index);
     this.updateRemainingFilters();

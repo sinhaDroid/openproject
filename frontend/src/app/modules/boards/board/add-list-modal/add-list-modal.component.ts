@@ -28,10 +28,10 @@
 
 import {OpModalComponent} from "core-components/op-modals/op-modal.component";
 import {OpModalLocalsToken} from "core-components/op-modals/op-modal.service";
-import {ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, Inject, OnInit} from "@angular/core";
 import {OpModalLocalsMap} from "core-components/op-modals/op-modal.types";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {Board, BoardType} from "core-app/modules/boards/board/board";
+import {Board} from "core-app/modules/boards/board/board";
 import {StateService} from "@uirouter/core";
 import {BoardService} from "core-app/modules/boards/board/board.service";
 import {BoardCacheService} from "core-app/modules/boards/board/board-cache.service";
@@ -39,15 +39,13 @@ import {QueryResource} from "core-app/modules/hal/resources/query-resource";
 import {BoardActionsRegistryService} from "core-app/modules/boards/board/board-actions/board-actions-registry.service";
 import {BoardActionService} from "core-app/modules/boards/board/board-actions/board-action.service";
 import {HalResource} from "core-app/modules/hal/resources/hal-resource";
-import {BoardListsService} from "core-app/modules/boards/board/board-list/board-lists.service";
 import {AngularTrackingHelpers} from "core-components/angular/tracking-functions";
+import {CreateAutocompleterComponent} from "core-app/modules/common/autocomplete/create-autocompleter.component";
 
 @Component({
   templateUrl: './add-list-modal.html'
 })
 export class AddListModalComponent extends OpModalComponent implements OnInit {
-  @ViewChild('actionAttributeSelect') actionAttributeSelect:ElementRef;
-
   public showClose:boolean;
 
   public confirmed = false;
@@ -69,6 +67,9 @@ export class AddListModalComponent extends OpModalComponent implements OnInit {
 
   public trackByHref = AngularTrackingHelpers.trackByHref;
 
+  /* Do not close on outside click (because the select option are appended to the body */
+  public closeOnOutsideClick = false;
+
   public text:any = {
     title: this.I18n.t('js.boards.add_list'),
     button_continue: this.I18n.t('js.button_continue'),
@@ -82,6 +83,12 @@ export class AddListModalComponent extends OpModalComponent implements OnInit {
     action_board_text: this.I18n.t('js.boards.board_type.action_text'),
     select_attribute: this.I18n.t('js.boards.board_type.select_attribute'),
     placeholder: this.I18n.t('js.placeholders.selection'),
+  };
+
+  public referenceOutputs = {
+    onCreate: (value:HalResource) => this.onNewActionCreated(value),
+    onChange: (value:HalResource) => this.onModelChange(value),
+    onAfterViewInit: (component:CreateAutocompleterComponent) => component.focusInputField()
   };
 
   constructor(readonly elementRef:ElementRef,
@@ -106,9 +113,12 @@ export class AddListModalComponent extends OpModalComponent implements OnInit {
     this.actionService
       .getAvailableValues(this.board, this.queries)
       .then(available => {
-        this.selectedAttribute = available[0];
         this.availableValues = available;
       });
+  }
+
+  onModelChange(element:HalResource) {
+    this.selectedAttribute = element;
   }
 
   create() {
@@ -120,6 +130,15 @@ export class AddListModalComponent extends OpModalComponent implements OnInit {
         this.boardCache.update(board);
         this.state.go('boards.show', { board_id: board.id, isNew: true });
       });
+  }
+
+  onNewActionCreated(newValue:HalResource) {
+    this.selectedAttribute = newValue;
+    this.create();
+  }
+
+  autocompleterComponent() {
+    return this.actionService.autocompleterComponent();
   }
 }
 

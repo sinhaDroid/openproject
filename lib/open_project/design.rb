@@ -147,6 +147,9 @@ module OpenProject
       'user-avatar-border-radius'                            => "50%",
       'user-avatar-width'                                    => "36px",
       'user-avatar-height'                                   => "36px",
+      'user-avatar-medium-border-radius'                     => "50%",
+      'user-avatar-medium-width'                             => "28px",
+      'user-avatar-medium-height'                            => "28px",
       'user-avatar-mini-border-radius'                       => "50%",
       'user-avatar-mini-width'                               => "20px",
       'user-avatar-mini-height'                              => "20px",
@@ -199,7 +202,8 @@ module OpenProject
       'table-timeline--row-height'                           => '40px',
       'status-selector-bg-color'                             => '#F99601',
       'status-selector-bg-hover-color'                       => '#E08600',
-      'card-font-size'                                       => '14px'
+      'card-font-size'                                       => '16px',
+      'board-teaser-image'                                   => '#{image-url("boards_video_teaser.png")}'
     }.freeze
 
     # Regular expression for references of other variables.

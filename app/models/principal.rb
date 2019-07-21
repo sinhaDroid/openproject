@@ -82,12 +82,6 @@ class Principal < ActiveRecord::Base
     firstnamelastname = "((firstname || ' ') || lastname)"
     lastnamefirstname = "((lastname || ' ') || firstname)"
 
-    # special concat for mysql
-    if OpenProject::Database.mysql?
-      firstnamelastname = "CONCAT(CONCAT(firstname, ' '), lastname)"
-      lastnamefirstname = "CONCAT(CONCAT(lastname, ' '), firstname)"
-    end
-
     s = "%#{q.to_s.downcase.strip.tr(',', '')}%"
 
     where(['LOWER(login) LIKE :s OR ' +
@@ -135,6 +129,7 @@ class Principal < ActiveRecord::Base
     # shouldn't know anything about them. Nevertheless, some functions
     # want to know the status for other Principals than User.
     raise 'Principal has status other than active' unless status == STATUSES[:active]
+
     'active'
   end
 

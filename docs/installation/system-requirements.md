@@ -16,7 +16,6 @@ provide any official support for them.
 | Distribution (64 bits only)     | Identifier   | init system |
 | :------------------------------ | :----------- | :---------- |
 | CentOS/RHEL 7.x                 | centos-7     | systemd     |
-| Debian 8 Jessie                 | debian-8     | systemd     |
 | Debian 9 Stretch                | debian-9     | systemd     |
 | Suse Linux Enterprise Server 12 | sles-12      | sysvinit    |
 | Ubuntu 16.04 Xenial Xerus       | ubuntu-16.04 | upstart     |
@@ -30,8 +29,7 @@ provide any official support for them.
   or [nginx](http://nginx.org/en/docs/)
 * __Application server:__ [Phusion Passenger](https://www.phusionpassenger.com/)
   or [Unicorn](http://unicorn.bogomips.org/)
-* __Database:__ [MySQL](https://www.mysql.com/) Version >= 5.6
-  or [PostgreSQL](http://www.postgresql.org/) Version >= 9.5
+* __Database__: [PostgreSQL](http://www.postgresql.org/) Version >= 9.5
 
 Please be aware that the dependencies listed above also have a lot of
 dependencies themselves.

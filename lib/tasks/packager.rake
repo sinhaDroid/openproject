@@ -50,11 +50,14 @@ namespace :packager do
 
     # We need to precompile assets when either
     # 1. packager requested it
-    # 2. When a custom Gemfile is added
-    if ENV['MUST_REBUILD_ASSETS'] == 'true'
+    # 2. user requested frontend compilation with RECOMPILE_ANGULAR_ASSETS
+    if ENV['RECOMPILE_RAILS_ASSETS'] == 'true' || ENV['RECOMPILE_ANGULAR_ASSETS'] == 'true'
       Rake::Task['assets:precompile'].invoke
       FileUtils.chmod_R 'a+rx', "#{ENV['APP_HOME']}/public/assets/"
-      shell_setup(['config:set', 'MUST_REBUILD_ASSETS=""'])
+
+      # Unset rails request to recompile
+      # but keep RECOMPILE_ANGULAR_ASSETS as it's user defined
+      shell_setup(['config:set', 'RECOMPILE_RAILS_ASSETS=""'])
     end
 
     # Clear any caches
@@ -67,15 +70,13 @@ namespace :packager do
 
     # Allow overriding the protocol setting from ENV
     # to allow instances where SSL is terminated earlier to respect that setting
-    Setting.protocol =
-      if ENV['SERVER_PROTOCOL_FORCE_HTTPS']
-        'https'
-      else
-        ENV.fetch('SERVER_PROTOCOL', Setting.protocol)
-      end
-
-    # Set https configured, set Rails force_ssl to true
-    shell_setup(['config:set', "OPENPROJECT_RAILS__FORCE__SSL=#{Setting.https?}"])
+    if ENV['SERVER_PROTOCOL_FORCE_HTTPS'] || ENV.fetch('SERVER_PROTOCOL', Setting.protocol) == 'https'
+      Setting.protocol = 'https'
+      shell_setup(['config:set', "OPENPROJECT_RAILS__FORCE__SSL=true"])
+    else
+      Setting.protocol = 'http'
+      shell_setup(['config:unset', "OPENPROJECT_RAILS__FORCE__SSL"])
+    end
 
     # Run customization step, if it is defined.
     # Use to define custom postinstall steps required after each configure,

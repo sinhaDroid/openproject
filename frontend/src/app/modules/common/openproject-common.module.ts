@@ -26,7 +26,6 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-
 import {FormsModule} from "@angular/forms";
 import {APP_INITIALIZER, Injector, NgModule} from "@angular/core";
 
@@ -57,8 +56,6 @@ import {highlightColBootstrap} from "./highlight-col/highlight-col.directive";
 import {HookService} from "../plugins/hook-service";
 import {HTMLSanitizeService} from "./html-sanitize/html-sanitize.service";
 import {ColorsAutocompleter} from "core-app/modules/common/colors/colors-autocompleter.component";
-import {DynamicCssService} from "./dynamic-css/dynamic-css.service";
-import {MultiToggledSelectComponent} from "core-app/modules/common/multi-toggled-select/multi-toggled-select.component";
 import {BannersService} from "core-app/modules/common/enterprise/banners.service";
 import {ResizerComponent} from "core-app/modules/common/resizer/resizer.component";
 import {TablePaginationComponent} from 'core-components/table-pagination/table-pagination.component';
@@ -72,7 +69,6 @@ import {CommonModule} from "@angular/common";
 import {CollapsibleSectionComponent} from "core-app/modules/common/collapsible-section/collapsible-section.component";
 import {NoResultsComponent} from "core-app/modules/common/no-results/no-results.component";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-import {NgSelectModule} from "@ng-select/ng-select";
 import {UserAutocompleterComponent} from "app/modules/common/autocomplete/user-autocompleter.component";
 import {ScrollableTabsComponent} from "core-app/modules/common/tabs/scrollable-tabs.component";
 import {BrowserDetector} from "core-app/modules/common/browser/browser-detector.service";
@@ -81,6 +77,21 @@ import {UserAvatarComponent} from "core-components/user/user-avatar/user-avatar.
 import {GonService} from "core-app/modules/common/gon/gon.service";
 import {BackRoutingService} from "core-app/modules/common/back-routing/back-routing.service";
 import {EnterpriseBannerComponent} from "core-components/enterprise-banner/enterprise-banner.component";
+import {DynamicModule} from "ng-dynamic-component";
+import {VersionAutocompleterComponent} from "core-app/modules/common/autocomplete/version-autocompleter.component";
+import {CreateAutocompleterComponent} from "core-app/modules/common/autocomplete/create-autocompleter.component";
+import {HomescreenNewFeaturesBlockComponent} from "core-components/homescreen/blocks/new-features.component";
+import {BoardVideoTeaserModalComponent} from "core-app/modules/boards/board/board-video-teaser-modal/board-video-teaser-modal.component";
+import {PersistentToggleComponent} from "core-app/modules/common/persistent-toggle/persistent-toggle.component";
+import {AutocompleteSelectDecorationComponent} from "core-app/modules/common/autocomplete/autocomplete-select-decoration.component";
+import {AddSectionDropdownComponent} from "core-app/modules/common/hide-section/add-section-dropdown/add-section-dropdown.component";
+import {HideSectionLinkComponent} from "core-app/modules/common/hide-section/hide-section-link/hide-section-link.component";
+import {HideSectionService} from "core-app/modules/common/hide-section/hide-section.service";
+import {RemoteFieldUpdaterComponent} from 'core-app/modules/common/remote-field-updater/remote-field-updater.component';
+import {AutofocusDirective} from "core-app/modules/common/autofocus/autofocus.directive";
+import {ShowSectionDropdownComponent} from "core-app/modules/common/hide-section/show-section-dropdown.component";
+import {IconTriggeredContextMenuComponent} from "core-components/op-context-menu/icon-triggered-context-menu/icon-triggered-context-menu.component";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 export function bootstrapModule(injector:Injector) {
   return () => {
@@ -107,6 +118,9 @@ export function bootstrapModule(injector:Injector) {
     // Our own A11y module
     OpenprojectAccessibilityModule,
     NgSelectModule,
+
+    DynamicModule.withComponents([VersionAutocompleterComponent,
+      CreateAutocompleterComponent]),
   ],
   exports: [
     // Re-export all commonly used
@@ -122,6 +136,7 @@ export function bootstrapModule(injector:Injector) {
     OpDatePickerComponent,
     OpDateTimeComponent,
     OpIcon,
+    AutofocusDirective,
 
     AttributeHelpTextComponent,
     AttributeHelpTextModal,
@@ -142,9 +157,6 @@ export function bootstrapModule(injector:Injector) {
     // Table highlight
     HighlightColDirective,
 
-    // Multi select component
-    MultiToggledSelectComponent,
-
     ResizerComponent,
 
     TablePaginationComponent,
@@ -153,6 +165,7 @@ export function bootstrapModule(injector:Injector) {
     ZenModeButtonComponent,
 
     OPContextMenuComponent,
+    IconTriggeredContextMenuComponent,
 
     NoResultsComponent,
 
@@ -167,11 +180,14 @@ export function bootstrapModule(injector:Injector) {
 
     // Enterprise Edition
     EnterpriseBannerComponent,
+
+    DynamicModule,
   ],
   declarations: [
     OpDatePickerComponent,
     OpDateTimeComponent,
     OpIcon,
+    AutofocusDirective,
 
     AttributeHelpTextComponent,
     AttributeHelpTextModal,
@@ -187,6 +203,8 @@ export function bootstrapModule(injector:Injector) {
     OpDateTimeComponent,
 
     OPContextMenuComponent,
+    IconTriggeredContextMenuComponent,
+
     // Entries for ng1 downgraded components
     AttributeHelpTextComponent,
 
@@ -199,8 +217,6 @@ export function bootstrapModule(injector:Injector) {
 
     CopyToClipboardDirective,
     ColorsAutocompleter,
-
-    MultiToggledSelectComponent,
 
     ResizerComponent,
 
@@ -221,8 +237,22 @@ export function bootstrapModule(injector:Injector) {
     // User Avatar
     UserAvatarComponent,
 
+    PersistentToggleComponent,
+    AutocompleteSelectDecorationComponent,
+    HideSectionLinkComponent,
+    ShowSectionDropdownComponent,
+    AddSectionDropdownComponent,
+    RemoteFieldUpdaterComponent,
+
     // Enterprise Edition
     EnterpriseBannerComponent,
+
+    // Autocompleter
+    CreateAutocompleterComponent,
+    VersionAutocompleterComponent,
+
+    HomescreenNewFeaturesBlockComponent,
+    BoardVideoTeaserModalComponent
   ],
   entryComponents: [
     OpDateTimeComponent,
@@ -238,12 +268,22 @@ export function bootstrapModule(injector:Injector) {
     ZenModeButtonComponent,
     CollapsibleSectionComponent,
     UserAutocompleterComponent,
-    UserAvatarComponent
+    UserAvatarComponent,
+
+    HomescreenNewFeaturesBlockComponent,
+    BoardVideoTeaserModalComponent,
+    UserAvatarComponent,
+    PersistentToggleComponent,
+    AutocompleteSelectDecorationComponent,
+    HideSectionLinkComponent,
+    AddSectionDropdownComponent,
+    RemoteFieldUpdaterComponent,
+    AttributeHelpTextComponent,
+    ShowSectionDropdownComponent,
   ],
   providers: [
     { provide: APP_INITIALIZER, useFactory: bootstrapModule, deps: [Injector], multi: true },
     I18nService,
-    DynamicCssService,
     BannersService,
     NotificationsService,
     FocusHelperService,
@@ -257,6 +297,7 @@ export function bootstrapModule(injector:Injector) {
     BrowserDetector,
     GonService,
     BackRoutingService,
+    HideSectionService,
   ]
 })
 export class OpenprojectCommonModule { }

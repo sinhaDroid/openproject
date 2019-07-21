@@ -25,7 +25,7 @@ export class GridAddWidgetService {
     return !this.drag.currentlyDragging &&
       !this.resize.currentlyResizing &&
       this.layout.mousedOverArea === area &&
-      this.layout.widgetAreaIds.includes(area.guid);
+      this.layout.gridAreaIds.includes(area.guid);
   }
 
   public widget(area:GridArea, schema:SchemaResource) {
@@ -94,7 +94,7 @@ export class GridAddWidgetService {
           endRow: area.endRow,
           startColumn: area.startColumn,
           endColumn: area.endColumn,
-          options: {}
+          options: registered.properties || {}
         };
 
         let resource = this.halResource.createHalResource(source) as GridWidgetResource;

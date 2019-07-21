@@ -46,7 +46,6 @@ import {IWorkPackageCreateServiceToken} from "core-components/wp-new/wp-create.s
 import {WorkPackageCreateService} from "core-components/wp-new/wp-create.service";
 import {WorkPackageStatesInitializationService} from "core-components/wp-list/wp-states-initialization.service";
 import {WorkPackageTableFocusService} from "core-components/wp-fast-table/state/wp-table-focus.service";
-import {ReorderQueryService} from "core-app/modules/boards/drag-and-drop/reorder-query.service";
 import {IWorkPackageEditingServiceToken} from "core-components/wp-edit-form/work-package-editing.service.interface";
 import {WorkPackageEditingService} from "core-components/wp-edit-form/work-package-editing-service";
 import {WorkPackagesListService} from "core-components/wp-list/wp-list.service";
@@ -59,6 +58,10 @@ import {WpChildrenInlineCreateService} from "core-components/wp-relations/embedd
 import {WpRelationInlineCreateService} from "core-components/wp-relations/embedded/relations/wp-relation-inline-create.service";
 import {WorkPackagesListChecksumService} from "core-components/wp-list/wp-list-checksum.service";
 import {debugLog} from "core-app/helpers/debug_output";
+import {PortalCleanupService} from "core-app/modules/fields/display/display-portal/portal-cleanup.service";
+import {TableDragActionsRegistryService} from "core-components/wp-table/drag-and-drop/actions/table-drag-actions-registry.service";
+import {ReorderQueryService} from "core-app/modules/common/drag-and-drop/reorder-query.service";
+import {WorkPackageTableOrderService} from "core-components/wp-fast-table/state/wp-table-order.service";
 
 /**
  * Directive to open a work package query 'space', an isolated injector hierarchy
@@ -70,45 +73,51 @@ import {debugLog} from "core-app/helpers/debug_output";
 @Directive({
   selector: '[wp-isolated-query-space]',
   providers: [
-    // Open the isolated space first, order is important here
-    IsolatedQuerySpace,
-    OpTableActionsService,
+  // Open the isolated space first, order is important here
+  IsolatedQuerySpace,
+  OpTableActionsService,
 
-    WorkPackageTableRefreshService,
+  WorkPackageTableRefreshService,
 
-    // Work package table services
-    WorkPackagesListChecksumService,
-    WorkPackagesListService,
-    WorkPackageTableRelationColumnsService,
-    WorkPackageTablePaginationService,
-    WorkPackageTableGroupByService,
-    WorkPackageTableHierarchiesService,
-    WorkPackageTableSortByService,
-    WorkPackageTableColumnsService,
-    WorkPackageTableFiltersService,
-    WorkPackageTableTimelineService,
-    WorkPackageTableSelection,
-    WorkPackageTableSumService,
-    WorkPackageTableAdditionalElementsService,
-    WorkPackageTableFocusService,
-    WorkPackageTableHighlightingService,
-    WorkPackageService,
-    WorkPackageRelationsHierarchyService,
-    WorkPackageFiltersService,
-    WorkPackageContextMenuHelperService,
+  // Work package table services
+  WorkPackagesListChecksumService,
+  WorkPackagesListService,
+  WorkPackageTableRelationColumnsService,
+  WorkPackageTablePaginationService,
+  WorkPackageTableGroupByService,
+  WorkPackageTableHierarchiesService,
+  WorkPackageTableSortByService,
+  WorkPackageTableColumnsService,
+  WorkPackageTableFiltersService,
+  WorkPackageTableTimelineService,
+  WorkPackageTableSelection,
+  WorkPackageTableSumService,
+  WorkPackageTableAdditionalElementsService,
+  WorkPackageTableFocusService,
+  WorkPackageTableHighlightingService,
+  WorkPackageTableOrderService,
+  WorkPackageService,
+  WorkPackageRelationsHierarchyService,
+  WorkPackageFiltersService,
+  WorkPackageContextMenuHelperService,
 
-    // Provide a separate service for creation events of WP Inline create
-    // This can be hierarchically injected to provide isolated events on an embedded table
-    WorkPackageInlineCreateService,
-    WpChildrenInlineCreateService,
-    WpRelationInlineCreateService,
+  // Provide a separate service for creation events of WP Inline create
+  // This can be hierarchically injected to provide isolated events on an embedded table
+  WorkPackageInlineCreateService,
+  WpChildrenInlineCreateService,
+  WpRelationInlineCreateService,
 
-    // Provide both serves with tokens to avoid tight dependency cycles
-    { provide: IWorkPackageCreateServiceToken, useClass: WorkPackageCreateService },
-    { provide: IWorkPackageEditingServiceToken, useClass: WorkPackageEditingService },
+  // Provide both serves with tokens to avoid tight dependency cycles
+  { provide: IWorkPackageCreateServiceToken, useClass: WorkPackageCreateService },
+  { provide: IWorkPackageEditingServiceToken, useClass: WorkPackageEditingService },
 
-    WorkPackageStatesInitializationService,
-    ReorderQueryService,
+  WorkPackageStatesInitializationService,
+  ReorderQueryService,
+
+  PortalCleanupService,
+
+  // Table Drag & Drop actions
+  TableDragActionsRegistryService,
   ]
 })
 export class WorkPackageIsolatedQuerySpaceDirective {

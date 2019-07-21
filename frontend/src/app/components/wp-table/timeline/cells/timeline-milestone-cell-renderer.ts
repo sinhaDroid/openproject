@@ -47,11 +47,12 @@ export class TimelineMilestoneCellRenderer extends TimelineCellRenderer {
 
     const diamond = document.createElement('div');
     diamond.className = 'diamond';
-    diamond.style.backgroundColor = '#DDDDDD';
     diamond.style.left = '0.5em';
     diamond.style.height = '1em';
     diamond.style.width = '1em';
     placeholder.appendChild(diamond);
+
+    this.applyTypeColor(renderInfo, diamond);
 
     return placeholder;
   }
@@ -130,7 +131,7 @@ export class TimelineMilestoneCellRenderer extends TimelineCellRenderer {
     diamond.style.width = 15 + 'px';
     diamond.style.height = 15 + 'px';
     diamond.style.marginLeft = -(15 / 2) + (renderInfo.viewParams.pixelPerDay / 2) + 'px';
-    this.applyTypeColor(renderInfo.workPackage, diamond);
+    this.applyTypeColor(renderInfo, diamond);
 
     // offset left
     const offsetStart = date.diff(viewParams.dateDisplayStart, 'days');

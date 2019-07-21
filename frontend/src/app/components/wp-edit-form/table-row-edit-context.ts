@@ -39,6 +39,7 @@ import {FocusHelperService} from 'core-app/modules/common/focus/focus-helper';
 import {WorkPackageTable} from 'core-components/wp-fast-table/wp-fast-table';
 import {WorkPackageEditingPortalService} from "core-app/modules/fields/edit/editing-portal/wp-editing-portal-service";
 import {IFieldSchema} from "core-app/modules/fields/field.base";
+import {editModeClassName} from "core-app/modules/fields/edit/edit-field.component";
 
 export class TableRowEditContext implements WorkPackageEditContext {
 
@@ -75,12 +76,14 @@ export class TableRowEditContext implements WorkPackageEditContext {
       .then((cell) => {
 
         // Forcibly set the width since the edit field may otherwise
-        // be given more width. Thereby preserve a minimum width of 120.
+        // be given more width. Thereby preserve a minimum width of 150.
+        // To avoid flickering content, the padding is removed, too.
         const td = this.findCell(fieldName);
-        var width = td.css('width');
-        width = parseInt(width) > 120 ? width : '120px';
-        td.css('max-width', width);
-        td.css('width', width);
+        td.addClass(editModeClassName);
+        var width = parseInt(td.css('width'));
+        width = width > 150 ? width - 10 : 150;
+        td.css('max-width', width + 'px');
+        td.css('width', width + 'px');
 
         return this.wpEditingPortalService.create(
           cell,
@@ -95,11 +98,13 @@ export class TableRowEditContext implements WorkPackageEditContext {
 
   public reset(workPackage:WorkPackageResource, fieldName:string, focus?:boolean) {
     const cell = this.findContainer(fieldName);
+    const td = this.findCell(fieldName);
 
     if (cell.length) {
       this.findCell(fieldName).css('width', '');
       this.findCell(fieldName).css('max-width', '');
       this.cellBuilder.refresh(cell[0], workPackage, fieldName);
+      td.removeClass(editModeClassName);
 
       if (focus) {
         this.FocusHelper.focusElement(cell);

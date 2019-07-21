@@ -117,10 +117,11 @@ module Redmine #:nodoc:
         deferred_plugins.delete(id)
       end
 
-      return p
+      p
     rescue PluginNotFound => e
       # find circular dependencies
       raise PluginCircularDependency.new(id) if dependencies_for(e.plugin_id).include?(id)
+
       if RedminePluginLocator.instance.has_plugin? e.plugin_id
         # The required plugin is going to be loaded later, defer loading this plugin
         (deferred_plugins[e.plugin_id] ||= []) << [id, block]
@@ -302,10 +303,11 @@ module Redmine #:nodoc:
     #   # A permission that can be given to project members only
     #   permission :say_hello, { example: :say_hello }, require: :member
     def permission(name, actions, options = {})
-      if @project_module
-        Redmine::AccessControl.map { |map| map.project_module(@project_module) { |map| map.permission(name, actions, options) } }
+      if @project_scope
+        mod, options = @project_scope
+        OpenProject::AccessControl.map { |map| map.project_module(mod, options) { |map| map.permission(name, actions, options) } }
       else
-        Redmine::AccessControl.map { |map| map.permission(name, actions, options) }
+        OpenProject::AccessControl.map { |map| map.permission(name, actions, options) }
       end
     end
 
@@ -316,10 +318,11 @@ module Redmine #:nodoc:
     #     permission :view_contacts, { contacts: [:list, :show] }, public: true
     #     permission :destroy_contacts, { contacts: :destroy }
     #   end
-    def project_module(name, &block)
-      @project_module = name
+    def project_module(name, options = {}, &block)
+      @project_scope = [name, options]
       instance_eval(&block)
-      @project_module = nil
+    ensure
+      @project_scope = nil
     end
 
     # Registers an activity provider.

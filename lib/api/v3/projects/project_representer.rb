@@ -34,7 +34,10 @@ module API
   module V3
     module Projects
       class ProjectRepresenter < ::API::Decorators::Single
+        include API::Decorators::DateProperty
         include ::API::Caching::CachedRepresenter
+        include API::Decorators::FormattableProperty
+        extend ::API::V3::Utilities::CustomFieldInjector::RepresenterClass
 
         self_link
 
@@ -54,12 +57,32 @@ module API
           }
         end
 
-        link :categories do
-          { href: api_v3_paths.categories(represented.id) }
+        link :workPackages,
+             cache_if: -> {
+               current_user_allowed_to(:view_work_packages, context: represented)
+             } do
+          { href: api_v3_paths.work_packages_by_project(represented.id) }
         end
 
-        link :versions do
+        link :categories do
+          { href: api_v3_paths.categories_by_project(represented.id) }
+        end
+
+        link :versions,
+             cache_if: -> {
+               current_user_allowed_to(:view_work_packages, context: represented) ||
+                 current_user_allowed_to(:manage_versions, context: represented)
+             } do
           { href: api_v3_paths.versions_by_project(represented.id) }
+        end
+
+        link :memberships,
+             cache_if: -> {
+               current_user_allowed_to(:view_members, context: represented)
+             } do
+          {
+            href: api_v3_paths.path_for(:memberships, filters: [{ project: { operator: "=", values: [represented.id.to_s] } }]),
+          }
         end
 
         link :types,
@@ -74,16 +97,14 @@ module API
         property :identifier,   render_nil: true
 
         property :name,         render_nil: true
-        property :description,  render_nil: true
+        formattable_property :description,
+                             uncacheable: true
 
-        property :created_on,
-                 as: 'createdAt',
-                 exec_context: :decorator,
-                 getter: ->(*) { datetime_formatter.format_datetime(represented.created_on) }
-        property :updated_on,
-                 as: 'updatedAt',
-                 exec_context: :decorator,
-                 getter: ->(*) { datetime_formatter.format_datetime(represented.updated_on) }
+        date_time_property :created_on,
+                           as: 'createdAt'
+
+        date_time_property :updated_on,
+                           as: 'updatedAt'
 
         def _type
           'Project'

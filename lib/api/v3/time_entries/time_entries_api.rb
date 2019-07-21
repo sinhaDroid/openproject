@@ -33,88 +33,20 @@ module API
         helpers ::API::Utilities::PageSizeHelper
 
         resources :time_entries do
-          get do
-            query = ParamsToQueryService
-                    .new(TimeEntry, current_user)
-                    .call(params)
+          get &::API::V3::Utilities::Endpoints::Index.new(model: TimeEntry).mount
+          post &::API::V3::Utilities::Endpoints::Create.new(model: TimeEntry).mount
 
-            if query.valid?
-              TimeEntryCollectionRepresenter.new(query.results,
-                                                 api_v3_paths.time_entries,
-                                                 page: to_i_or_nil(params[:offset]),
-                                                 per_page: resolve_page_size(params[:pageSize]),
-                                                 current_user: current_user)
-            else
-              raise ::API::Errors::InvalidQuery.new(query.errors.full_messages)
-            end
-          end
-
-          post do
-            params = API::V3::ParseResourceParamsService
-                     .new(current_user, model: TimeEntry)
-                     .call(request_body)
-                     .result
-
-            result = ::TimeEntries::CreateService
-                     .new(user: current_user)
-                     .call(params)
-
-            if result.success?
-              new_entry = result.result
-              TimeEntryRepresenter.create(new_entry,
-                                          current_user: current_user,
-                                          embed_links: true)
-            else
-              fail ::API::Errors::ErrorBase.create_and_merge_errors(result.errors)
-            end
-          end
-
-          params do
-            requires :id, desc: 'Time entry\'s id'
-          end
-
-          route_param :id do
-            before do
+          route_param :id, type: Integer, desc: 'Time entry ID' do
+            after_validation do
               @time_entry = TimeEntry
                             .visible
                             .find(params[:id])
             end
 
-            get do
-              TimeEntryRepresenter.create(@time_entry,
-                                          current_user: current_user,
-                                          embed_links: true)
-            end
+            get &::API::V3::Utilities::Endpoints::Show.new(model: TimeEntry).mount
 
-            patch do
-              params = API::V3::ParseResourceParamsService
-                       .new(current_user, model: TimeEntry)
-                       .call(request_body)
-                       .result
-
-              result = ::TimeEntries::UpdateService
-                       .new(time_entry: @time_entry, user: current_user)
-                       .call(attributes: params)
-
-              if result.success?
-                updated_entry = result.result
-                TimeEntryRepresenter.create(updated_entry,
-                                            current_user: current_user,
-                                            embed_links: true)
-              else
-                fail ::API::Errors::ErrorBase.create_and_merge_errors(result.errors)
-              end
-            end
-
-            delete do
-              call = ::TimeEntries::DeleteService.new(time_entry: @time_entry, user: current_user).call
-
-              if call.success?
-                status 204
-              else
-                fail ::API::Errors::ErrorBase.create_and_merge_errors(call.errors)
-              end
-            end
+            patch &::API::V3::Utilities::Endpoints::Update.new(model: TimeEntry).mount
+            delete &::API::V3::Utilities::Endpoints::Delete.new(model: TimeEntry).mount
           end
 
           mount ::API::V3::TimeEntries::TimeEntriesActivityAPI

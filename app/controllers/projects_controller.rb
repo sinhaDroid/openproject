@@ -199,7 +199,7 @@ class ProjectsController < ApplicationController
       flash[:error] = I18n.t(:error_can_not_archive_project)
       redirect_back fallback_location: projects_url
     end
-    
+
     update_demo_project_settings @project, false
   end
 
@@ -231,10 +231,10 @@ class ProjectsController < ApplicationController
   end
 
   def level_list
-    @projects = Project.project_level_list(Project.visible)
+    projects = Project.project_level_list(Project.visible)
 
     respond_to do |format|
-      format.api
+      format.json { render json: projects_level_list_json(projects) }
     end
   end
 
@@ -242,6 +242,7 @@ class ProjectsController < ApplicationController
 
   def find_optional_project
     return true unless params[:id]
+
     @project = Project.find(params[:id])
     authorize
   rescue ActiveRecord::RecordNotFound
@@ -269,7 +270,7 @@ class ProjectsController < ApplicationController
     unless User.current.admin?
       r = Role.givable.find_by(id: Setting.new_project_user_role_id.to_i) || Role.givable.first
       m = Member.new do |member|
-        member.user = User.current
+        member.principal = User.current
         member.role_ids = [r].map(&:id) # member.roles = [r] fails, this works
       end
       project.members << m

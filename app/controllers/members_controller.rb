@@ -41,12 +41,6 @@ class MembersController < ApplicationController
 
   include CellsHelper
 
-  @@scripts = ['hideOnLoad', 'init_members_cb']
-
-  def self.add_tab_script(script)
-    @@scripts.unshift(script)
-  end
-
   def index
     set_index_data!
   end
@@ -96,7 +90,7 @@ class MembersController < ApplicationController
       if @member.disposable?
         flash.notice = I18n.t(:notice_member_deleted, user: @member.principal.name)
 
-        @member.user.destroy
+        @member.principal.destroy
       else
         flash.notice = I18n.t(:notice_member_removed, user: @member.principal.name)
 
@@ -132,7 +126,7 @@ class MembersController < ApplicationController
         render partial: 'members/autocomplete_for_member',
                locals: { project: @project,
                          principals: @principals,
-                         roles: Role.find_all_givable }
+                         roles: Role.givable }
       end
     end
   end
@@ -176,7 +170,9 @@ class MembersController < ApplicationController
   end
 
   def self.tab_scripts
-    @@scripts.join('(); ') + '();'
+    scripts = %w(hideOnLoad init_members_cb)
+
+    scripts.join('(); ') + '();'
   end
 
   def set_index_data!
@@ -189,7 +185,7 @@ class MembersController < ApplicationController
   end
 
   def set_roles_and_principles!
-    @roles = Role.find_all_givable
+    @roles = Role.givable
     # Check if there is at least one principal that can be added to the project
     @principals_available = @project.possible_members('', 1)
   end

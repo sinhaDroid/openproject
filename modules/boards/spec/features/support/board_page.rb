@@ -117,6 +117,20 @@ module Pages
       end
     end
 
+    ##
+    # Expect the given work packages (or their subjects) to be listed in that exact order in the list.
+    # No non mentioned cards are allowed to be in the list.
+    def expect_cards_in_order(list_name, *card_titles)
+      within_list(list_name) do
+        found = all('.wp-card .wp-card--subject')
+                .map(&:text)
+        expected = card_titles.map { |title| title.is_a?(WorkPackage) ? title.subject : title.to_s }
+
+        expect(found)
+          .to match expected
+      end
+    end
+
     def move_card(index, from:, to:)
       source = page.all("#{list_selector(from)} .wp-card")[index]
       target = page.find list_selector(to)
@@ -140,24 +154,27 @@ module Pages
         .perform
     end
 
-    def add_list(name, value: nil)
-      if value.nil? && action?
+    def add_list(option: nil)
+      if option.nil? && action?
         raise "Must pass value option for action boards"
       end
 
       count = list_count
-      page.find('.boards-list--add-item').click
 
-      if value.nil?
+      if option.nil?
+        page.find('.boards-list--add-item').click
         expect(page).to have_selector('.board-list--container', count: count + 1)
       else
-        select value, from: 'new_board_action_select'
+        open_and_fill_add_list_modal option
+        page.find('.ng-option-label', text: option, wait: 10).click
         click_on 'Continue'
       end
+    end
 
-      unless name.nil?
-        rename_list 'Unnamed list', name
-      end
+    def add_list_with_new_value(name)
+      open_and_fill_add_list_modal name
+
+      page.find('.ng-option', text: 'Create: ' + name).click
     end
 
     def save
@@ -174,7 +191,11 @@ module Pages
     end
 
     def expect_list(name)
-      expect(page).to have_field('editable-toolbar-title', with: name)
+      expect(page).to have_selector('.board-list--header', text: name)
+    end
+
+    def expect_no_list(name)
+      expect(page).not_to have_selector('.board-list--header', text: name)
     end
 
     def expect_empty
@@ -182,17 +203,32 @@ module Pages
     end
 
     def remove_list(name)
-      within_list(name) do
-        page.find('.board-list--header').hover
-        page.find('.board-list--menu a').click
-      end
-
-      page.find('.dropdown-menu a', text: 'Delete list').click
+      click_list_dropdown name, 'Delete list'
 
       accept_alert_dialog!
       expect_and_dismiss_notification message: I18n.t('js.notice_successful_update')
 
       expect(page).to have_no_selector list_selector(name)
+    end
+
+    def click_list_dropdown(list_name, action)
+      within_list(list_name) do
+        page.find('.board-list--header').hover
+        page.find('.board-list--menu a').click
+      end
+
+      page.find('.dropdown-menu a', text: action).click
+    end
+
+    def expect_list_option(name, present: true)
+      open_and_fill_add_list_modal name
+
+      if present
+        expect(page).to have_selector('.ng-option-label', text: name)
+      else
+        expect(page).not_to have_selector('.ng-option-label', text: name)
+      end
+      find('body').send_keys [:escape]
     end
 
     def visit!
@@ -214,7 +250,7 @@ module Pages
       find('.board--back-button').click
     end
 
-    def expect_editable(editable)
+    def expect_editable_board(editable)
       # Editable / draggable check
       expect(page).to have_conditional_selector(editable, '.board--container.-editable')
 
@@ -223,9 +259,16 @@ module Pages
 
       # Add new list
       expect(page).to have_conditional_selector(editable, '.boards-list--add-item')
+    end
 
-      # Add new / existing card
-      expect(page).to have_conditional_selector(editable, '.board-list--card-dropdown-button')
+    def expect_editable_list(editable)
+      # Add list button
+      if action?
+        expect(page).to have_conditional_selector(!editable, '.board-list--add-button[disabled]')
+        expect(page).to have_conditional_selector(editable, '.board-list--add-button:not([disabled])')
+      else
+        expect(page).to have_conditional_selector(editable, '.board-list--card-dropdown-button')
+      end
     end
 
     def rename_board(new_name, through_dropdown: false)
@@ -242,7 +285,6 @@ module Pages
           input.send_keys :enter
         end
       end
-
 
       expect_and_dismiss_notification message: I18n.t('js.notice_successful_update')
 
@@ -282,6 +324,13 @@ module Pages
       end
 
       click_button 'Apply'
+    end
+
+    def open_and_fill_add_list_modal(name)
+      page.find('.boards-list--add-item').click
+      expect(page).to have_selector('.new-list--action-select input')
+      sleep(0.1)
+      page.find('.op-modal--modal-container .new-list--action-select input').set(name)
     end
   end
 end

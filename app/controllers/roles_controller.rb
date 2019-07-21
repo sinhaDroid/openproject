@@ -29,14 +29,14 @@
 
 class RolesController < ApplicationController
   include PaginationHelper
+  include Roles::NotifyMixin
 
   layout 'admin'
 
   before_action :require_admin, except: [:autocomplete_for_role]
 
   def index
-    @roles = Role
-             .order(Arel.sql('builtin, position'))
+    @roles = roles_scope
              .page(page_param)
              .per_page(per_page_param)
 
@@ -44,26 +44,20 @@ class RolesController < ApplicationController
   end
 
   def new
-    # Prefills the form with 'Non member' role permissions
     @role = Role.new(permitted_params.role? || { permissions: Role.non_member.permissions })
 
-    @permissions = @role.setable_permissions
-    @roles = Role.order(Arel.sql('builtin, position'))
+    @roles = roles_scope
   end
 
   def create
-    @role = Role.new(permitted_params.role? || { permissions: Role.non_member.permissions })
-    if @role.save
-      # workflow copy
-      if !params[:copy_workflow_from].blank? && (copy_from = Role.find_by(id: params[:copy_workflow_from]))
-        @role.workflows.copy_from_role(copy_from)
-      end
-      flash[:notice] = l(:notice_successful_create)
+    @call = create_role
+    @role = @call.result
+
+    if @call.success?
+      flash[:notice] = t(:notice_successful_create)
       redirect_to action: 'index'
-      notify_changed_roles(:added, @role)
     else
-      @permissions = @role.setable_permissions
-      @roles = Role.order(Arel.sql('builtin, position'))
+      @roles = roles_scope
 
       render action: 'new'
     end
@@ -71,18 +65,17 @@ class RolesController < ApplicationController
 
   def edit
     @role = Role.find(params[:id])
-    @permissions = @role.setable_permissions
+    @call = set_role_attributes(@role, 'update')
   end
 
   def update
     @role = Role.find(params[:id])
+    @call = update_role(@role, permitted_params.role)
 
-    if @role.update_attributes(permitted_params.role)
+    if @call.success?
       flash[:notice] = l(:notice_successful_update)
       redirect_to action: 'index'
-      notify_changed_roles(:updated, @role)
     else
-      @permissions = @role.setable_permissions
       render action: 'edit'
     end
   end
@@ -94,34 +87,35 @@ class RolesController < ApplicationController
     redirect_to action: 'index'
     notify_changed_roles(:removed, @role)
   rescue
-    flash[:error] =  l(:error_can_not_remove_role)
+    flash[:error] = l(:error_can_not_remove_role)
     redirect_to action: 'index'
   end
 
   def report
     @roles = Role.order(Arel.sql('builtin, position'))
-    @permissions = Redmine::AccessControl.permissions.select { |p| !p.public? }
+    @permissions = OpenProject::AccessControl.permissions.reject(&:public?)
   end
 
   def bulk_update
-    @roles = Role.order(Arel.sql('builtin, position'))
+    @roles = roles_scope
 
-    @roles.each do |role|
-      new_permissions = params[:permissions][role.id.to_s].presence || []
-      role.permissions = new_permissions
-      role.save
+    calls = bulk_update_roles(@roles)
+
+    if calls.all?(&:success?)
+      flash[:notice] = l(:notice_successful_update)
+      redirect_to action: 'index'
+    else
+      @calls = calls
+      @permissions = OpenProject::AccessControl.permissions.reject(&:public?)
+      render action: 'report'
     end
-
-    flash[:notice] = l(:notice_successful_update)
-    redirect_to action: 'index'
-    notify_changed_roles(:bulk_update, @roles)
   end
 
   def autocomplete_for_role
     size = params[:page_limit].to_i
     page = params[:page].to_i
 
-    @roles = Role.paginated_search(params[:q],  page: page, page_limit: size)
+    @roles = Role.paginated_search(params[:q], page: page, page_limit: size)
     # we always get all the items on a page, so just check if we just got the last
     @more = @roles.total_pages > page
     @total = @roles.total_entries
@@ -133,11 +127,37 @@ class RolesController < ApplicationController
 
   private
 
-  def notify_changed_roles(action, changed_role)
-    OpenProject::Notifications.send(:roles_changed, action: action, role: changed_role)
+  def set_role_attributes(role, create_or_update)
+    contract = "Roles::#{create_or_update.camelize}Contract".constantize
+
+    Roles::SetAttributesService
+      .new(user: current_user, model: role, contract_class: contract)
+      .call(new_params)
   end
 
-  protected
+  def update_role(role, params)
+    Roles::UpdateService
+      .new(user: current_user, model: role)
+      .call(params)
+  end
+
+  def bulk_update_roles(roles)
+    roles.map do |role|
+      new_permissions = { permissions: params[:permissions][role.id.to_s].presence || [] }
+
+      update_role(role, new_permissions)
+    end
+  end
+
+  def create_role
+    Roles::CreateService
+      .new(user: current_user)
+      .call(create_params)
+  end
+
+  def roles_scope
+    Role.order(Arel.sql('builtin, position'))
+  end
 
   def default_breadcrumb
     if action_name == 'index'
@@ -149,5 +169,15 @@ class RolesController < ApplicationController
 
   def show_local_breadcrumb
     true
+  end
+
+  def new_params
+    permitted_params.role? || {}
+  end
+
+  def create_params
+    new_params
+      .merge(copy_workflow_from: params[:copy_workflow_from],
+             global_role: params[:global_role])
   end
 end
